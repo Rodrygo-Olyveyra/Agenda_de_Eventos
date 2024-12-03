@@ -33,8 +33,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
       );
       return;
     }
-
-    // Simulação de cadastro bem-sucedido
     print('Usuário cadastrado:');
     print('Nome: $nome');
     print('Email: $email');
@@ -44,7 +42,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
       const SnackBar(content: Text('Cadastro realizado com sucesso!')),
     );
 
-    // Limpa os campos após o cadastro
     _nomeController.clear();
     _emailController.clear();
     _senhaController.clear();
@@ -65,11 +62,10 @@ class _TelaCadastroState extends State<TelaCadastro> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Título com imagem
                 Column(
                   children: [
                     Image.asset(
-                      'assets/calendar.png',
+                      'calendar.png',
                       height: 100,
                       width: 100,
                       fit: BoxFit.contain,
@@ -136,7 +132,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Checkbox para aceitar termos
                 Row(
                   children: [
                     Checkbox(
@@ -156,7 +151,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                // Botão de Cadastrar
                 ElevatedButton(
                   onPressed: _aceitarTermos ? _cadastrar : null,
                   style: ElevatedButton.styleFrom(
