@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TelaCadastro extends StatefulWidget {
-  const TelaCadastro({Key? key}) : super(key: key);
+  const TelaCadastro({super.key});
 
   @override
   _TelaCadastroState createState() => _TelaCadastroState();
@@ -14,7 +15,9 @@ class _TelaCadastroState extends State<TelaCadastro> {
   final TextEditingController _confirmaSenhaController = TextEditingController();
   bool _aceitarTermos = false;
 
-  void _cadastrar() {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> _cadastrar() async {
     final String nome = _nomeController.text.trim();
     final String email = _emailController.text.trim();
     final String senha = _senhaController.text.trim();
@@ -34,24 +37,46 @@ class _TelaCadastroState extends State<TelaCadastro> {
       return;
     }
 
-    // Simulação de cadastro bem-sucedido
-    print('Usuário cadastrado:');
-    print('Nome: $nome');
-    print('Email: $email');
-    print('Senha: $senha');
+    try {
+      
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: senha,
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Cadastro realizado com sucesso!')),
-    );
+      
+      await userCredential.user?.updateDisplayName(nome);
 
-    // Limpa os campos após o cadastro
-    _nomeController.clear();
-    _emailController.clear();
-    _senhaController.clear();
-    _confirmaSenhaController.clear();
-    setState(() {
-      _aceitarTermos = false;
-    });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cadastro realizado com sucesso!')),
+      );
+
+      // Limpa os campos após o cadastro
+      _nomeController.clear();
+      _emailController.clear();
+      _senhaController.clear();
+      _confirmaSenhaController.clear();
+      setState(() {
+        _aceitarTermos = false;
+      });
+    } on FirebaseAuthException catch (e) {
+      String mensagemErro = 'Ocorreu um erro ao realizar o cadastro.';
+      if (e.code == 'email-already-in-use') {
+        mensagemErro = 'Este email já está em uso.';
+      } else if (e.code == 'weak-password') {
+        mensagemErro = 'A senha deve ter pelo menos 6 caracteres.';
+      } else if (e.code == 'invalid-email') {
+        mensagemErro = 'O email informado é inválido.';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(mensagemErro)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro inesperado. Tente novamente.')),
+      );
+    }
   }
 
   @override
@@ -65,7 +90,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Título com imagem
                 Column(
                   children: [
                     Image.asset(
@@ -86,7 +110,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
                   ],
                 ),
                 const SizedBox(height: 40),
-                // Campo de Nome
                 TextFormField(
                   controller: _nomeController,
                   decoration: InputDecoration(
@@ -98,7 +121,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Campo de Email
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
@@ -110,7 +132,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Campo de Senha
                 TextFormField(
                   controller: _senhaController,
                   obscureText: true,
@@ -123,7 +144,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Campo de Confirmação de Senha
                 TextFormField(
                   controller: _confirmaSenhaController,
                   obscureText: true,
@@ -136,7 +156,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Checkbox para aceitar termos
                 Row(
                   children: [
                     Checkbox(
@@ -147,8 +166,8 @@ class _TelaCadastroState extends State<TelaCadastro> {
                         });
                       },
                     ),
-                    Expanded(
-                      child: const Text(
+                    const Expanded(
+                      child: Text(
                         'Eu aceito os termos e condições de uso',
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -156,7 +175,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                // Botão de Cadastrar
                 ElevatedButton(
                   onPressed: _aceitarTermos ? _cadastrar : null,
                   style: ElevatedButton.styleFrom(

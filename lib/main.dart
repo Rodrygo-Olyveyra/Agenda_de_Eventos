@@ -12,6 +12,8 @@ void main() async {
 }
 
 class SimplesAgendaApp extends StatelessWidget {
+  const SimplesAgendaApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
