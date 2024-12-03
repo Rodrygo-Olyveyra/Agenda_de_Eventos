@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
-import 'tela_login.dart'; // Importando a tela de login
+import 'tela_cadastro.dart'; // Importa a tela de cadastro
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(SimplesAgendaApp());
 }
 
@@ -14,7 +20,7 @@ class SimplesAgendaApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: const TelaLogin(), // Chamando a tela de login
+      home: const TelaCadastro(), // Define a tela de cadastro como inicial
     );
   }
 }
