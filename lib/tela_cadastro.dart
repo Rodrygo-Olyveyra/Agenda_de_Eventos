@@ -93,7 +93,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
                 Column(
                   children: [
                     Image.asset(
-                      'assets/calendar.png',
+                      'calendar.png',
                       height: 100,
                       width: 100,
                       fit: BoxFit.contain,

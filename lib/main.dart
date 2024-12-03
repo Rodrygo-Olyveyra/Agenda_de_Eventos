@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'tela_cadastro.dart'; // Importa a tela de cadastro
+import 'tela_cadastro.dart'; 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -22,7 +22,7 @@ class SimplesAgendaApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: const TelaCadastro(), // Define a tela de cadastro como inicial
+      home: const TelaCadastro(), 
     );
   }
 }
