@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'tela_de_escolha.dart'; // Importe corretamente a tela de escolha
 
 class TelaCadastro extends StatefulWidget {
   const TelaCadastro({super.key});
@@ -49,7 +50,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
         const SnackBar(content: Text('Cadastro realizado com sucesso!')),
       );
 
-      // Limpa os campos após o cadastro
       _nomeController.clear();
       _emailController.clear();
       _senhaController.clear();
@@ -184,6 +184,19 @@ class _TelaCadastroState extends State<TelaCadastro> {
                   child: const Text(
                     'CADASTRAR',
                     style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TelaEscolha()),
+                    );
+                  },
+                  child: const Text(
+                    'Voltar para a tela inicial',
+                    style: TextStyle(color: Colors.blueGrey),
                   ),
                 ),
               ],
