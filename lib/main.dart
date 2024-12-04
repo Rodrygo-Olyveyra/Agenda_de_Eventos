@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'tela_cadastro.dart'; 
+import 'tela_de_escolha.dart'; 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -12,6 +12,8 @@ void main() async {
 }
 
 class SimplesAgendaApp extends StatelessWidget {
+  const SimplesAgendaApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,7 +22,7 @@ class SimplesAgendaApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: const TelaCadastro(), 
+      home: const TelaEscolha(), 
     );
   }
 }
