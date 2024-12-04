@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'tela_de_escolha.dart'; 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'tela_de_escolha.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +22,7 @@ class SimplesAgendaApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: const TelaEscolha(), 
+      home: const TelaEscolha(),
     );
   }
 }

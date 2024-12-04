@@ -38,13 +38,11 @@ class _TelaCadastroState extends State<TelaCadastro> {
     }
 
     try {
-      
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: senha,
       );
 
-      
       await userCredential.user?.updateDisplayName(nome);
 
       ScaffoldMessenger.of(context).showSnackBar(
