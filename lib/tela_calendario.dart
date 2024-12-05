@@ -1,39 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_application_prova/tela_de_login.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class TelaCalendario extends StatefulWidget {
-  const TelaCalendario({super.key});
+  const TelaCalendario({Key? key}) : super(key: key);
 
   @override
   _TelaCalendarioState createState() => _TelaCalendarioState();
 }
 
 class _TelaCalendarioState extends State<TelaCalendario> {
-  late DateTime _selectedDay;
-  late DateTime _focusedDay;
-  final Map<DateTime, List<Map<String, String>>> _events = {};
+  late Map<DateTime, List<Map<String, String>>> _events; // Armazena eventos por dia
+  late DateTime _selectedDay; // Dia selecionado
+  late DateTime _focusedDay; // Dia focalizado no calendário
+  late User? user; // Usuário logado
 
   @override
   void initState() {
     super.initState();
+    _events = {};
     _selectedDay = DateTime.now();
     _focusedDay = DateTime.now();
+    user = FirebaseAuth.instance.currentUser; // Obtém o usuário logado
   }
 
-  bool isSameDay(DateTime day1, DateTime day2) {
-    return day1.year == day2.year &&
-        day1.month == day2.month &&
-        day1.day == day2.day;
-  }
-  void _addEvent(String name, String description, String time) {
-    if (_events[_selectedDay] == null) {
-      _events[_selectedDay] = [];
-    }
+  /// Adiciona um evento ao dia selecionado
+  void _addEvent(String event, String description, String time) {
     setState(() {
-      _events[_selectedDay]?.add({
-        'name': name,
-        'description': description,
-        'time': time,
+      if (_events[_selectedDay] == null) {
+        _events[_selectedDay] = [];
+      }
+      _events[_selectedDay]!.add({
+        "event": event,
+        "description": description,
+        "time": time,
       });
     });
   }
@@ -42,20 +43,90 @@ class _TelaCalendarioState extends State<TelaCalendario> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calendário de Eventos'),
+        title: const Text('Calendário'),
         backgroundColor: Colors.blueGrey,
-        centerTitle: true,
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Color(0xFF32CD99),
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    'Menu',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  ),
+                  Text('Bem-vindo, ${user?.displayName ?? 'Usuário'}!'),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Início'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_month_outlined),
+              title: const Text('Calendário'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.list),
+              title: const Text('Lista de Eventos'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TelaListaEventos(events: _events)),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Configurações'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => TelaCalendario()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Sair'),
+              onTap: () {
+                Navigator.pop(context); // Fecha o Drawer
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => TelaLogin()),
+                );
+              },
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: [
           TableCalendar(
-            firstDay: DateTime.utc(2020, 01, 01),
+            firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2030, 12, 31),
             focusedDay: _focusedDay,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day), 
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {
-                _selectedDay = selectedDay;
+                _selectedDay = selectedDay; // Atualiza a data selecionada
                 _focusedDay = focusedDay;
               });
             },
@@ -69,40 +140,49 @@ class _TelaCalendarioState extends State<TelaCalendario> {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  TextEditingController _nameController = TextEditingController();
+                  TextEditingController _eventController = TextEditingController();
                   TextEditingController _descriptionController = TextEditingController();
                   TextEditingController _timeController = TextEditingController();
-
                   return AlertDialog(
                     title: const Text('Adicionar Evento'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(hintText: 'Nome do evento'),
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _descriptionController,
-                          decoration: const InputDecoration(hintText: 'Descrição do evento'),
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _timeController,
-                          decoration: const InputDecoration(hintText: 'Horário do evento (HH:mm)'),
-                          keyboardType: TextInputType.datetime,
-                        ),
-                      ],
+                    content: Container(
+                      width: 300, // Tamanho mais compacto do AlertDialog
+                      height: 280, // Ajuste a altura conforme necessário
+                      padding: const EdgeInsets.all(16), // Padding interno
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Nome do Evento:', style: TextStyle(fontWeight: FontWeight.bold)),
+                          TextField(
+                            controller: _eventController,
+                            decoration: const InputDecoration(hintText: 'Digite o nome do evento', border: OutlineInputBorder()),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 10),
+                          const Text('Descrição do Evento:', style: TextStyle(fontWeight: FontWeight.bold)),
+                          TextField(
+                            controller: _descriptionController,
+                            decoration: const InputDecoration(hintText: 'Digite a descrição do evento', border: OutlineInputBorder()),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 10),
+                          const Text('Horário do Evento:', style: TextStyle(fontWeight: FontWeight.bold)),
+                          TextField(
+                            controller: _timeController,
+                            decoration: const InputDecoration(hintText: 'Digite o horário', border: OutlineInputBorder()),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
                     actions: [
                       TextButton(
                         onPressed: () {
-                          if (_nameController.text.isNotEmpty &&
+                          if (_eventController.text.isNotEmpty &&
                               _descriptionController.text.isNotEmpty &&
                               _timeController.text.isNotEmpty) {
                             _addEvent(
-                              _nameController.text,
+                              _eventController.text,
                               _descriptionController.text,
                               _timeController.text,
                             );
@@ -139,13 +219,45 @@ class _TelaCalendarioState extends State<TelaCalendario> {
             child: ListView(
               children: _events[_selectedDay]?.map((event) {
                 return ListTile(
-                  title: Text(event['name'] ?? 'Sem nome'),
-                  subtitle: Text('${event['description'] ?? 'Sem descrição'} - ${event['time'] ?? 'Sem horário'}'),
+                  title: Text(
+                    '${event["event"]} - ${event["time"]}',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text('${event["description"]}'),
                 );
               }).toList() ?? [],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class TelaListaEventos extends StatelessWidget {
+  final Map<DateTime, List<Map<String, String>>> events;
+
+  TelaListaEventos({Key? key, required this.events}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> eventList = [];
+    events.forEach((date, eventDetails) {
+      for (var event in eventDetails) {
+        eventList.add(ListTile(
+          title: Text('${event["event"]}'),
+          subtitle: Text('Data: ${date.toLocal()} - Horário: ${event["time"]}\nDescrição: ${event["description"]}'),
+        ));
+      }
+    });
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Lista de Eventos'),
+        backgroundColor: Colors.blueGrey,
+      ),
+      body: ListView(
+        children: eventList.isEmpty ? [const Center(child: Text("Nenhum evento registrado."))] : eventList,
       ),
     );
   }
