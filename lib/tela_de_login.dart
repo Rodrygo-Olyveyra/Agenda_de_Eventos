@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'tela_de_escolha.dart'; 
-import 'tela_cadastro.dart'; // Certifique-se de importar a tela de cadastro corretamente
+import 'tela_cadastro.dart'; 
+import 'tela_calendario.dart'; 
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -33,26 +33,21 @@ class _TelaLoginState extends State<TelaLogin> {
     });
 
     try {
-      // Adicionando print para depuração
-      print("Tentando fazer login com o email: $email e senha: $senha");
-
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: senha,
       );
 
-      // Adicionando log para confirmar o sucesso
-      print("Login bem-sucedido para o usuário: ${userCredential.user?.email}");
-
-      // Redireciona para a tela de escolha após login bem-sucedido
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const TelaEscolha()),
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login realizado com sucesso!')),
-      );
+      
+      if (userCredential.user != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login realizado com sucesso!')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const TelaCalendario()), // Redireciona para a tela de calendário
+        );
+      }
     } on FirebaseAuthException catch (e) {
       String mensagemErro = 'Erro ao realizar login.';
       if (e.code == 'user-not-found') {
@@ -63,16 +58,10 @@ class _TelaLoginState extends State<TelaLogin> {
         mensagemErro = 'Email inválido.';
       }
 
-      // Adicionando log para erro específico
-      print("Erro de login: $mensagemErro");
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(mensagemErro)),
       );
     } catch (e) {
-      // Log para outros erros
-      print("Erro inesperado: $e");
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Erro inesperado. Tente novamente.')),
       );
@@ -94,88 +83,127 @@ class _TelaLoginState extends State<TelaLogin> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Column(
-                  children: [
-                    Image.asset(
-                      'calendar.png',
-                      height: 100,
-                      width: 100,
-                      fit: BoxFit.contain,
+                const Text(
+                  'Simples Agenda',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            prefixIcon: const Icon(Icons.email),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          controller: _senhaController,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            labelText: 'Senha',
+                            prefixIcon: const Icon(Icons.lock),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              // Função para recuperação de senha
+                            },
+                            child: const Text(
+                              'Esqueceu sua senha?',
+                              style: TextStyle(color: Colors.blueGrey),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        _isLoading
+                            ? const CircularProgressIndicator()
+                            : ElevatedButton(
+                                onPressed: _fazerLogin,
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 40, vertical: 15),
+                                  backgroundColor: Colors.blueGrey,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'LOGIN',
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.white),
+                                ),
+                              ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Faça Login',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Divider(
+                        thickness: 1,
+                        color: Colors.blueGrey,
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text(
+                        'Novo no aplicativo?',
+                        style: TextStyle(color: Colors.blueGrey),
+                      ),
+                    ),
+                    const Expanded(
+                      child: Divider(
+                        thickness: 1,
                         color: Colors.blueGrey,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 40),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: const Icon(Icons.email),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                ),
                 const SizedBox(height: 20),
-                TextFormField(
-                  controller: _senhaController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Senha',
-                    prefixIcon: const Icon(Icons.lock),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _isLoading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        onPressed: _fazerLogin,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                          backgroundColor: Colors.blueGrey,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        child: const Text(
-                          'LOGIN',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                      ),
-                const SizedBox(height: 20),
-                TextButton(
+                OutlinedButton(
                   onPressed: () {
-                    // Navega para a tela de cadastro
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const TelaCadastro()),
+                      MaterialPageRoute(
+                          builder: (context) => const TelaCadastro()),
                     );
                   },
-                  child: const Text(
-                    'Não tem uma conta? Cadastre-se aqui.',
-                    style: TextStyle(color: Colors.blueGrey),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 15),
+                    side: const BorderSide(color: Colors.blueGrey),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
                   child: const Text(
-                    'Voltar para a tela inicial',
-                    style: TextStyle(color: Colors.blueGrey),
+                    'Criar sua conta do Simples Agenda',
+                    style: TextStyle(fontSize: 16, color: Colors.blueGrey),
                   ),
                 ),
               ],
