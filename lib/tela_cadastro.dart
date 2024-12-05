@@ -89,7 +89,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueGrey[50],
+      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -108,6 +108,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
                 const SizedBox(height: 20),
                 Card(
                   elevation: 5,
+                  color: const Color.fromARGB(255, 0, 0, 0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
@@ -122,6 +123,17 @@ class _TelaCadastroState extends State<TelaCadastro> {
                             prefixIcon: const Icon(Icons.person),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFFFD700), 
+                                width: 2,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFFFD700), 
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
@@ -134,6 +146,17 @@ class _TelaCadastroState extends State<TelaCadastro> {
                             prefixIcon: const Icon(Icons.email),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(
+                                color: Color(0xFFFFD700), 
+                                width: 2,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFFFD700), 
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
@@ -146,6 +169,17 @@ class _TelaCadastroState extends State<TelaCadastro> {
                             prefixIcon: const Icon(Icons.lock),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(
+                                color: Color(0xFFFFD700), 
+                                width: 2,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFFFD700), 
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
@@ -158,6 +192,17 @@ class _TelaCadastroState extends State<TelaCadastro> {
                             prefixIcon: const Icon(Icons.lock_outline),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 255, 217, 0), 
+                                width: 2,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFFFD700), 
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
@@ -169,7 +214,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 40, vertical: 15),
-                                  backgroundColor: Colors.blueGrey,
+                                  backgroundColor: Color(0xFFFFD700),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
@@ -190,7 +235,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
                   children: [
                     const Text(
                       'Você já tem uma conta? ',
-                      style: TextStyle(color: Colors.blueGrey),
+                      style: TextStyle(color: Color(0xFFFFD700)),
                     ),
                     GestureDetector(
                       onTap: () {

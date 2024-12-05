@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'tela_cadastro.dart'; 
-import 'tela_calendario.dart'; 
+import 'tela_cadastro.dart';
+import 'tela_calendario.dart';
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -38,14 +38,13 @@ class _TelaLoginState extends State<TelaLogin> {
         password: senha,
       );
 
-      
       if (userCredential.user != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login realizado com sucesso!')),
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const TelaCalendario()), // Redireciona para a tela de calendário
+          MaterialPageRoute(builder: (context) => const TelaCalendario()),
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -75,7 +74,8 @@ class _TelaLoginState extends State<TelaLogin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueGrey[50],
+      
+      backgroundColor: const Color.fromARGB(255, 0, 0, 0), 
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -83,6 +83,12 @@ class _TelaLoginState extends State<TelaLogin> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Image.asset(
+                  'eventsy_sem_fundo.png',
+                  width: 150,
+                  height: 150,
+                ),
+                const SizedBox(height: 20),
                 const Text(
                   'Simples Agenda',
                   style: TextStyle(
@@ -93,34 +99,59 @@ class _TelaLoginState extends State<TelaLogin> {
                 ),
                 const SizedBox(height: 20),
                 Card(
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
+  elevation: 5,
+  color: const Color.fromARGB(255, 0, 0, 0), 
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(8.0),
+  ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
                       children: [
                         TextFormField(
+                          cursorColor: Color(0xFFFFD700),
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             labelText: 'Email',
                             prefixIcon: const Icon(Icons.email),
-                            border: OutlineInputBorder(
+                            enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFFFD700), 
+                                width: 2,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFFFD700), 
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
+                          cursorColor: Color(0xFFFFD700),
                           controller: _senhaController,
                           obscureText: true,
                           decoration: InputDecoration(
                             labelText: 'Senha',
                             prefixIcon: const Icon(Icons.lock),
-                            border: OutlineInputBorder(
+                            enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFFFD700), // Dourado
+                                width: 2,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFFFD700), // Dourado mais escuro
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
@@ -133,7 +164,7 @@ class _TelaLoginState extends State<TelaLogin> {
                             },
                             child: const Text(
                               'Esqueceu sua senha?',
-                              style: TextStyle(color: Colors.blueGrey),
+                              style: TextStyle(color: Color(0xFFFFD700)),
                             ),
                           ),
                         ),
@@ -145,7 +176,7 @@ class _TelaLoginState extends State<TelaLogin> {
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 40, vertical: 15),
-                                  backgroundColor: Colors.blueGrey,
+                                  backgroundColor: const Color.fromARGB(215, 248, 211, 0),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
@@ -153,7 +184,7 @@ class _TelaLoginState extends State<TelaLogin> {
                                 child: const Text(
                                   'LOGIN',
                                   style: TextStyle(
-                                      fontSize: 16, color: Colors.white),
+                                      fontSize: 16, color: Color.fromARGB(255, 255, 255, 255)),
                                 ),
                               ),
                       ],
@@ -166,20 +197,20 @@ class _TelaLoginState extends State<TelaLogin> {
                     const Expanded(
                       child: Divider(
                         thickness: 1,
-                        color: Colors.blueGrey,
+                        color: Color.fromARGB(215, 248, 211, 0),
                       ),
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.0),
                       child: Text(
                         'Novo no aplicativo?',
-                        style: TextStyle(color: Colors.blueGrey),
+                        style: TextStyle(color: Color.fromARGB(215, 248, 211, 0)),
                       ),
                     ),
                     const Expanded(
                       child: Divider(
                         thickness: 1,
-                        color: Colors.blueGrey,
+                         color: Color.fromARGB(215, 248, 211, 0),
                       ),
                     ),
                   ],
@@ -196,14 +227,14 @@ class _TelaLoginState extends State<TelaLogin> {
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 15),
-                    side: const BorderSide(color: Colors.blueGrey),
+                    side: const BorderSide(color: Color(0xFFFFD700)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
                   child: const Text(
                     'Criar sua conta do Simples Agenda',
-                    style: TextStyle(fontSize: 16, color: Colors.blueGrey),
+                    style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 255, 255, 255)),
                   ),
                 ),
               ],
