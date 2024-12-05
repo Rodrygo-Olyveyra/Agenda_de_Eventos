@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_application_prova/tela_de_login.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class TelaCalendario extends StatefulWidget {
@@ -11,10 +11,11 @@ class TelaCalendario extends StatefulWidget {
 }
 
 class _TelaCalendarioState extends State<TelaCalendario> {
-  late Map<DateTime, List<Map<String, String>>> _events; // Armazena eventos por dia
-  late DateTime _selectedDay; // Dia selecionado
-  late DateTime _focusedDay; // Dia focalizado no calendário
-  late User? user; // Usuário logado
+  late Map<DateTime, List<Map<String, String>>> _events;
+  late DateTime _selectedDay;
+  late DateTime _focusedDay;
+  late User? user;
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
@@ -22,11 +23,51 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     _events = {};
     _selectedDay = DateTime.now();
     _focusedDay = DateTime.now();
-    user = FirebaseAuth.instance.currentUser; // Obtém o usuário logado
+    user = FirebaseAuth.instance.currentUser;
+    _loadEventsForAllDays(); // Carrega todos os eventos agendados para qualquer dia
   }
 
-  /// Adiciona um evento ao dia selecionado
-  void _addEvent(String event, String description, String time) {
+  // Carrega todos os eventos do Firebase para todos os dias relevantes
+  void _loadEventsForAllDays() async {
+    QuerySnapshot querySnapshot = await _firestore.collection('events').get();
+    for (var doc in querySnapshot.docs) {
+      DateTime eventDate = (doc['date'] as Timestamp).toDate();
+
+      // Adiciona o evento ao mapa de eventos para o dia correspondente
+      if (_events[eventDate] == null) {
+        _events[eventDate] = [];
+      }
+      _events[eventDate]?.add({
+        "event": doc['event'],
+        "description": doc['description'],
+        "time": doc['time'],
+      });
+    }
+    setState(() {}); // Atualiza o estado após carregar os eventos
+  }
+
+  // Adiciona um evento ao Firestore e ao calendário
+  void _addEvent(String event, String description, String time) async {
+    DateTime eventDate = DateTime(
+      _selectedDay.year,
+      _selectedDay.month,
+      _selectedDay.day,
+      int.parse(time.split(":")[0]),
+      int.parse(time.split(":")[1]),
+    );
+
+    // Salva o evento no Firebase
+    Map<String, dynamic> eventData = {
+      'event': event,
+      'description': description,
+      'time': time,
+      'date': Timestamp.fromDate(eventDate),
+      'createdBy': user?.displayName ?? 'Anônimo',
+    };
+
+    await _firestore.collection('events').add(eventData);
+
+    // Atualiza a lista de eventos no app
     setState(() {
       if (_events[_selectedDay] == null) {
         _events[_selectedDay] = [];
@@ -46,77 +87,6 @@ class _TelaCalendarioState extends State<TelaCalendario> {
         title: const Text('Calendário'),
         backgroundColor: Colors.blueGrey,
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Color(0xFF32CD99),
-              ),
-              child: Column(
-                children: [
-                  const Text(
-                    'Menu',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                    ),
-                  ),
-                  Text('Bem-vindo, ${user?.displayName ?? 'Usuário'}!'),
-                ],
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Início'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.calendar_month_outlined),
-              title: const Text('Calendário'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.list),
-              title: const Text('Lista de Eventos'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TelaListaEventos(events: _events)),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Configurações'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => TelaCalendario()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.exit_to_app),
-              title: const Text('Sair'),
-              onTap: () {
-                Navigator.pop(context); // Fecha o Drawer
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => TelaLogin()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
       body: Column(
         children: [
           TableCalendar(
@@ -126,7 +96,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
             selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {
-                _selectedDay = selectedDay; // Atualiza a data selecionada
+                _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
               });
             },
@@ -146,31 +116,20 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                   return AlertDialog(
                     title: const Text('Adicionar Evento'),
                     content: Container(
-                      width: 300, // Tamanho mais compacto do AlertDialog
-                      height: 280, // Ajuste a altura conforme necessário
-                      padding: const EdgeInsets.all(16), // Padding interno
+                      height: 280,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Nome do Evento:', style: TextStyle(fontWeight: FontWeight.bold)),
                           TextField(
                             controller: _eventController,
-                            decoration: const InputDecoration(hintText: 'Digite o nome do evento', border: OutlineInputBorder()),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            decoration: const InputDecoration(labelText: 'Nome do Evento'),
                           ),
-                          const SizedBox(height: 10),
-                          const Text('Descrição do Evento:', style: TextStyle(fontWeight: FontWeight.bold)),
                           TextField(
                             controller: _descriptionController,
-                            decoration: const InputDecoration(hintText: 'Digite a descrição do evento', border: OutlineInputBorder()),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            decoration: const InputDecoration(labelText: 'Descrição'),
                           ),
-                          const SizedBox(height: 10),
-                          const Text('Horário do Evento:', style: TextStyle(fontWeight: FontWeight.bold)),
                           TextField(
                             controller: _timeController,
-                            decoration: const InputDecoration(hintText: 'Digite o horário', border: OutlineInputBorder()),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            decoration: const InputDecoration(labelText: 'Horário (HH:mm)'),
                           ),
                         ],
                       ),
@@ -202,62 +161,27 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                 },
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueGrey,
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-            ),
-            child: const Text(
-              'ADICIONAR EVENTO',
-              style: TextStyle(fontSize: 16, color: Colors.white),
-            ),
+            child: const Text('ADICIONAR EVENTO'),
           ),
           const SizedBox(height: 20),
           Expanded(
             child: ListView(
               children: _events[_selectedDay]?.map((event) {
-                return ListTile(
-                  title: Text(
-                    '${event["event"]} - ${event["time"]}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: ListTile(
+                    title: Text(
+                      '${event["event"]} - ${event["time"]}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text('Descrição: ${event["description"]}'),
                   ),
-                  subtitle: Text('${event["description"]}'),
                 );
-              }).toList() ?? [],
+              }).toList() ??
+                  [const Center(child: Text('Nenhum evento registrado para esta data.'))],
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class TelaListaEventos extends StatelessWidget {
-  final Map<DateTime, List<Map<String, String>>> events;
-
-  TelaListaEventos({Key? key, required this.events}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    List<Widget> eventList = [];
-    events.forEach((date, eventDetails) {
-      for (var event in eventDetails) {
-        eventList.add(ListTile(
-          title: Text('${event["event"]}'),
-          subtitle: Text('Data: ${date.toLocal()} - Horário: ${event["time"]}\nDescrição: ${event["description"]}'),
-        ));
-      }
-    });
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Lista de Eventos'),
-        backgroundColor: Colors.blueGrey,
-      ),
-      body: ListView(
-        children: eventList.isEmpty ? [const Center(child: Text("Nenhum evento registrado."))] : eventList,
       ),
     );
   }
