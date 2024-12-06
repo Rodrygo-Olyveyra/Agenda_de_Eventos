@@ -1,20 +1,22 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_application_prova/tela_de_login.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class TelaCalendario extends StatefulWidget {
-  const TelaCalendario({Key? key}) : super(key: key);
+  const TelaCalendario({super.key});
 
   @override
   _TelaCalendarioState createState() => _TelaCalendarioState();
 }
 
 class _TelaCalendarioState extends State<TelaCalendario> {
-  late Map<DateTime, List<Map<String, String>>> _events; // Armazena eventos por dia
-  late DateTime _selectedDay; // Dia selecionado
-  late DateTime _focusedDay; // Dia focalizado no calendário
-  late User? user; // Usuário logado
+  late Map<DateTime, List<Map<String, String>>> _events;
+  late DateTime _selectedDay;
+  late DateTime _focusedDay;
+  late User? user;
+  late CollectionReference eventsCollection;
 
   @override
   void initState() {
@@ -22,11 +24,39 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     _events = {};
     _selectedDay = DateTime.now();
     _focusedDay = DateTime.now();
-    user = FirebaseAuth.instance.currentUser; // Obtém o usuário logado
+    user = FirebaseAuth.instance.currentUser;
+    eventsCollection = FirebaseFirestore.instance.collection('events');
+    _loadEvents();
   }
 
-  /// Adiciona um evento ao dia selecionado
-  void _addEvent(String event, String time) {
+  // Carrega os eventos do Firestore
+  void _loadEvents() async {
+    final snapshot = await eventsCollection
+        .where('userId', isEqualTo: user?.uid)
+        .get();
+    for (var doc in snapshot.docs) {
+      DateTime eventDate = DateTime.parse(doc['date']);
+      if (_events[eventDate] == null) {
+        _events[eventDate] = [];
+      }
+      _events[eventDate]!.add({
+        "event": doc['event'],
+        "time": doc['time'],
+      });
+    }
+    setState(() {});
+  }
+
+  // Adiciona um evento ao Firestore
+  void _addEvent(String event, String time) async {
+    // Cria a referência do evento
+    await eventsCollection.add({
+      'userId': user?.uid,
+      'date': _selectedDay.toIso8601String(),
+      'event': event,
+      'time': time,
+    });
+
     setState(() {
       if (_events[_selectedDay] == null) {
         _events[_selectedDay] = [];
@@ -95,7 +125,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                 Navigator.pop(context);
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => TelaCalendario()),
+                  MaterialPageRoute(builder: (context) => const TelaCalendario()),
                 );
               },
             ),
@@ -106,7 +136,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                 Navigator.pop(context); // Fecha o Drawer
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => TelaLogin()),
+                  MaterialPageRoute(builder: (context) => const TelaLogin()),
                 );
               },
             ),
@@ -136,18 +166,18 @@ class _TelaCalendarioState extends State<TelaCalendario> {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  TextEditingController _eventController = TextEditingController();
-                  TextEditingController _timeController = TextEditingController();
+                  TextEditingController eventController = TextEditingController();
+                  TextEditingController timeController = TextEditingController();
                   return AlertDialog(
                     title: const Text('Adicionar Evento'),
                     content: Column(
                       children: [
                         TextField(
-                          controller: _eventController,
+                          controller: eventController,
                           decoration: const InputDecoration(hintText: 'Digite o evento'),
                         ),
                         TextField(
-                          controller: _timeController,
+                          controller: timeController,
                           decoration: const InputDecoration(hintText: 'Digite o horário'),
                         ),
                       ],
@@ -155,8 +185,8 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                     actions: [
                       TextButton(
                         onPressed: () {
-                          if (_eventController.text.isNotEmpty && _timeController.text.isNotEmpty) {
-                            _addEvent(_eventController.text, _timeController.text); // Adiciona o evento na data selecionada
+                          if (eventController.text.isNotEmpty && timeController.text.isNotEmpty) {
+                            _addEvent(eventController.text, timeController.text);
                             Navigator.pop(context);
                           }
                         },
@@ -204,7 +234,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
 class TelaListaEventos extends StatelessWidget {
   final Map<DateTime, List<Map<String, String>>> events;
   
-  TelaListaEventos({Key? key, required this.events}) : super(key: key);
+  const TelaListaEventos({super.key, required this.events});
 
   @override
   Widget build(BuildContext context) {
@@ -229,3 +259,4 @@ class TelaListaEventos extends StatelessWidget {
     );
   }
 }
+

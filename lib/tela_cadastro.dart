@@ -215,7 +215,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 40, vertical: 15),
-                                  backgroundColor: Color(0xFFFFD700),
+                                  backgroundColor: const Color(0xFFFFD700),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
