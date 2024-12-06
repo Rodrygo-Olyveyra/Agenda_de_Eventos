@@ -74,7 +74,7 @@ class _TelaLoginState extends State<TelaLogin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Cor de fundo mais suave
+      backgroundColor: Colors.white, 
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -93,13 +93,13 @@ class _TelaLoginState extends State<TelaLogin> {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black, // Cor mais neutra
+                    color: Colors.black, 
                   ),
                 ),
                 const SizedBox(height: 20),
                 Card(
                   elevation: 5,
-                  color: Colors.white, // Cor mais neutra
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
@@ -118,14 +118,14 @@ class _TelaLoginState extends State<TelaLogin> {
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Colors.grey, // Cor mais suave
+                                color: Colors.grey,
                                 width: 1.5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Colors.blueGrey, // Cor mais suave
+                                color: Colors.blueGrey,
                                 width: 2,
                               ),
                             ),
@@ -143,14 +143,14 @@ class _TelaLoginState extends State<TelaLogin> {
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Colors.grey, // Cor mais suave
+                                color: Colors.grey,
                                 width: 1.5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Colors.blueGrey, // Cor mais suave
+                                color: Colors.blueGrey, 
                                 width: 2,
                               ),
                             ),
@@ -161,7 +161,6 @@ class _TelaLoginState extends State<TelaLogin> {
                           alignment: Alignment.centerRight,
                           child: TextButton(
                             onPressed: () {
-                              // Função para recuperação de senha
                             },
                             child: const Text(
                               'Esqueceu sua senha?',
@@ -177,7 +176,7 @@ class _TelaLoginState extends State<TelaLogin> {
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 40, vertical: 15),
-                                  backgroundColor: Colors.blueGrey, // Cor mais suave
+                                  backgroundColor: Colors.blueGrey, 
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
@@ -198,7 +197,7 @@ class _TelaLoginState extends State<TelaLogin> {
                     const Expanded(
                       child: Divider(
                         thickness: 1,
-                        color: Colors.blueGrey, // Cor mais suave
+                        color: Colors.blueGrey,
                       ),
                     ),
                     const Padding(
@@ -211,7 +210,7 @@ class _TelaLoginState extends State<TelaLogin> {
                     const Expanded(
                       child: Divider(
                         thickness: 1,
-                        color: Colors.blueGrey, // Cor mais suave
+                        color: Colors.blueGrey,
                       ),
                     ),
                   ],
@@ -228,7 +227,7 @@ class _TelaLoginState extends State<TelaLogin> {
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 15),
-                    side: const BorderSide(color: Colors.blueGrey), // Cor mais suave
+                    side: const BorderSide(color: Colors.blueGrey),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),

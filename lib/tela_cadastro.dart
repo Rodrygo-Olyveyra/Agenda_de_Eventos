@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; 
-import 'tela_de_login.dart'; 
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'tela_de_login.dart';
 
 class TelaCadastro extends StatefulWidget {
   const TelaCadastro({super.key});
@@ -18,7 +17,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
       TextEditingController();
   bool _isLoading = false;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance; 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   void _cadastrarUsuario() async {
     final String nome = _nomeController.text.trim();
@@ -26,10 +25,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
     final String senha = _senhaController.text.trim();
     final String confirmarSenha = _confirmarSenhaController.text.trim();
 
-    if (nome.isEmpty ||
-        email.isEmpty ||
-        senha.isEmpty ||
-        confirmarSenha.isEmpty) {
+    if (nome.isEmpty || email.isEmpty || senha.isEmpty || confirmarSenha.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor, preencha todos os campos.')),
       );
@@ -48,7 +44,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
     });
 
     try {
-      
       await _auth.createUserWithEmailAndPassword(
         email: email,
         password: senha,
@@ -58,7 +53,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
         const SnackBar(content: Text('Cadastro realizado com sucesso!')),
       );
 
-     
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const TelaLogin()),
@@ -90,7 +84,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+      backgroundColor: Colors.white, 
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -99,17 +93,17 @@ class _TelaCadastroState extends State<TelaCadastro> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Simples Agenda',
+                  'Agenda Eventsy',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey,
+                    color: Colors.black, // Cor neutra
                   ),
                 ),
                 const SizedBox(height: 20),
                 Card(
                   elevation: 5,
-                  color: const Color.fromARGB(255, 0, 0, 0),
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
@@ -118,21 +112,23 @@ class _TelaCadastroState extends State<TelaCadastro> {
                     child: Column(
                       children: [
                         TextFormField(
+                          cursorColor: Colors.blueGrey,
                           controller: _nomeController,
                           decoration: InputDecoration(
                             labelText: 'Nome',
-                            prefixIcon: const Icon(Icons.person),
-                            border: OutlineInputBorder(
+                            labelStyle: const TextStyle(color: Colors.grey),
+                            prefixIcon: const Icon(Icons.person, color: Colors.grey),
+                            enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Color(0xFFFFD700), 
-                                width: 2,
+                                color: Colors.grey,
+                                width: 1.5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Color(0xFFFFD700), 
+                                color: Colors.blueGrey,
                                 width: 2,
                               ),
                             ),
@@ -140,22 +136,24 @@ class _TelaCadastroState extends State<TelaCadastro> {
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
+                          cursorColor: Colors.blueGrey,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             labelText: 'Email',
-                            prefixIcon: const Icon(Icons.email),
-                            border: OutlineInputBorder(
+                            labelStyle: const TextStyle(color: Colors.grey),
+                            prefixIcon: const Icon(Icons.email, color: Colors.grey),
+                            enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
-                            borderSide: const BorderSide(
-                                color: Color(0xFFFFD700), 
-                                width: 2,
+                              borderSide: const BorderSide(
+                                color: Colors.grey,
+                                width: 1.5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Color(0xFFFFD700), 
+                                color: Colors.blueGrey,
                                 width: 2,
                               ),
                             ),
@@ -163,22 +161,24 @@ class _TelaCadastroState extends State<TelaCadastro> {
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
+                          cursorColor: Colors.blueGrey,
                           controller: _senhaController,
                           obscureText: true,
                           decoration: InputDecoration(
                             labelText: 'Senha',
-                            prefixIcon: const Icon(Icons.lock),
-                            border: OutlineInputBorder(
+                            labelStyle: const TextStyle(color: Colors.grey),
+                            prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                            enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
-                            borderSide: const BorderSide(
-                                color: Color(0xFFFFD700), 
-                                width: 2,
+                              borderSide: const BorderSide(
+                                color: Colors.grey,
+                                width: 1.5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Color(0xFFFFD700), 
+                                color: Colors.blueGrey,
                                 width: 2,
                               ),
                             ),
@@ -186,22 +186,24 @@ class _TelaCadastroState extends State<TelaCadastro> {
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
+                          cursorColor: Colors.blueGrey,
                           controller: _confirmarSenhaController,
                           obscureText: true,
                           decoration: InputDecoration(
                             labelText: 'Confirmar Senha',
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            border: OutlineInputBorder(
+                            labelStyle: const TextStyle(color: Colors.grey),
+                            prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                            enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
-                            borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 255, 217, 0), 
-                                width: 2,
+                              borderSide: const BorderSide(
+                                color: Colors.grey,
+                                width: 1.5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Color(0xFFFFD700), 
+                                color: Colors.blueGrey,
                                 width: 2,
                               ),
                             ),
@@ -215,7 +217,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 40, vertical: 15),
-                                  backgroundColor: const Color(0xFFFFD700),
+                                  backgroundColor: Colors.blueGrey,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
@@ -229,32 +231,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Você já tem uma conta? ',
-                      style: TextStyle(color: Color(0xFFFFD700)),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const TelaLogin()),
-                        );
-                      },
-                      child: const Text(
-                        'Fazer login',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
