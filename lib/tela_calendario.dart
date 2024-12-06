@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_prova/tela_de_login.dart';
+import 'package:intl/intl.dart'; 
 import 'package:table_calendar/table_calendar.dart';
 
 class TelaCalendario extends StatefulWidget {
@@ -31,38 +32,168 @@ class _TelaCalendarioState extends State<TelaCalendario> {
 
   // Carrega os eventos do Firestore
   void _loadEvents() async {
-    final snapshot = await eventsCollection
-        .where('userId', isEqualTo: user?.uid)
-        .get();
-    for (var doc in snapshot.docs) {
-      DateTime eventDate = DateTime.parse(doc['date']);
-      if (_events[eventDate] == null) {
-        _events[eventDate] = [];
-      }
-      _events[eventDate]!.add({
-        "event": doc['event'],
-        "time": doc['time'],
-      });
+    // Verifica se o usuário está autenticado
+    if (user == null) {
+      print('Usuário não autenticado!');
+      return;
     }
-    setState(() {});
+
+    try {
+      final snapshot = await eventsCollection
+          .where('userId', isEqualTo: user?.uid)
+          .get();
+
+      // Verificando se a consulta retornou documentos
+      if (snapshot.docs.isEmpty) {
+        print('Nenhum evento encontrado!');
+      }
+
+      for (var doc in snapshot.docs) {
+        DateTime eventDate = DateTime.parse(doc['date']);
+        if (_events[eventDate] == null) {
+          _events[eventDate] = [];
+        }
+        _events[eventDate]!.add({
+          "event": doc['event'],
+          "time": doc['time'],
+          "description": doc['description'], // Adicionando descrição
+        });
+      }
+      setState(() {});
+    } catch (e) {
+      print('Erro ao carregar eventos: $e');
+    }
   }
 
-  // Adiciona um evento ao Firestore
-  void _addEvent(String event, String time) async {
-    // Cria a referência do evento
+  void _addEvent(String event, String time, String description) async {
     await eventsCollection.add({
       'userId': user?.uid,
       'date': _selectedDay.toIso8601String(),
       'event': event,
       'time': time,
+      'description': description, // Adicionando descrição
     });
 
     setState(() {
       if (_events[_selectedDay] == null) {
         _events[_selectedDay] = [];
       }
-      _events[_selectedDay]!.add({"event": event, "time": time});
+      _events[_selectedDay]!.add({"event": event, "time": time, "description": description});
     });
+  }
+
+  // Mostra o diálogo para adicionar evento
+  void _showAddEventDialog(BuildContext context) {
+    TextEditingController eventController = TextEditingController();
+    TextEditingController descriptionController = TextEditingController(); // Controller para descrição
+    TimeOfDay selectedTime = TimeOfDay.now();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              title: const Text(
+                'Adicionar Evento',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Campo de texto para o evento
+                  TextField(
+                    controller: eventController,
+                    decoration: InputDecoration(
+                      labelText: 'Nome do Evento',
+                      prefixIcon: const Icon(Icons.event),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Campo de texto para a descrição
+                  TextField(
+                    controller: descriptionController,
+                    decoration: InputDecoration(
+                      labelText: 'Descrição',
+                      prefixIcon: const Icon(Icons.description),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    maxLines: 3,  // Definindo um limite de linhas para a descrição
+                  ),
+                  const SizedBox(height: 16),
+                  // Seletor de horário
+                  GestureDetector(
+                    onTap: () async {
+                      TimeOfDay? pickedTime = await showTimePicker(
+                        context: context,
+                        initialTime: selectedTime,
+                      );
+                      if (pickedTime != null) {
+                        setState(() {
+                          selectedTime = pickedTime;
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Horário: ${selectedTime.format(context)}',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const Icon(Icons.access_time, color: Colors.grey),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                  ),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (eventController.text.isNotEmpty) {
+                      _addEvent(
+                        eventController.text,
+                        selectedTime.format(context),
+                        descriptionController.text, // Passando a descrição
+                      );
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueGrey,
+                  ),
+                  child: const Text('Adicionar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -114,7 +245,9 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => TelaListaEventos(events: _events)),
+                  MaterialPageRoute(
+                    builder: (context) => TelaListaEventos(events: _events),
+                  ),
                 );
               },
             ),
@@ -123,20 +256,38 @@ class _TelaCalendarioState extends State<TelaCalendario> {
               title: const Text('Configurações'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TelaCalendario()),
-                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Sair'),
               onTap: () {
-                Navigator.pop(context); // Fecha o Drawer
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TelaLogin()),
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Confirmação'),
+                      content: const Text('Você tem certeza que deseja sair?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Cancelar'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const TelaLogin()),
+                            );
+                          },
+                          child: const Text('Sair'),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
             ),
@@ -152,7 +303,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
             selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {
-                _selectedDay = selectedDay; // Atualiza a data selecionada
+                _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
               });
             },
@@ -163,45 +314,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  TextEditingController eventController = TextEditingController();
-                  TextEditingController timeController = TextEditingController();
-                  return AlertDialog(
-                    title: const Text('Adicionar Evento'),
-                    content: Column(
-                      children: [
-                        TextField(
-                          controller: eventController,
-                          decoration: const InputDecoration(hintText: 'Digite o evento'),
-                        ),
-                        TextField(
-                          controller: timeController,
-                          decoration: const InputDecoration(hintText: 'Digite o horário'),
-                        ),
-                      ],
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          if (eventController.text.isNotEmpty && timeController.text.isNotEmpty) {
-                            _addEvent(eventController.text, timeController.text);
-                            Navigator.pop(context);
-                          }
-                        },
-                        child: const Text('Adicionar'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Cancelar'),
-                      ),
-                    ],
-                  );
-                },
-              );
+              _showAddEventDialog(context);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blueGrey,
@@ -212,17 +325,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
             ),
             child: const Text(
               'ADICIONAR EVENTO',
-              style: TextStyle(fontSize: 16, color: Colors.white),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: ListView(
-              children: _events[_selectedDay]?.map((event) {
-                return ListTile(
-                  title: Text('${event["event"]} - ${event["time"]}'),
-                );
-              }).toList() ?? [],
+              style: TextStyle(fontSize: 16),
             ),
           ),
         ],
@@ -233,20 +336,28 @@ class _TelaCalendarioState extends State<TelaCalendario> {
 
 class TelaListaEventos extends StatelessWidget {
   final Map<DateTime, List<Map<String, String>>> events;
-  
+
   const TelaListaEventos({super.key, required this.events});
+
+  // Função para agrupar eventos por mês e ano
+  Map<String, List<Map<String, String>>> _groupEventsByMonth() {
+    Map<String, List<Map<String, String>>> groupedEvents = {};
+
+    events.forEach((date, eventList) {
+      // Formatando a chave para "Mês - Ano"
+      String monthYearKey = DateFormat('MMMM - yyyy').format(date);  // Exemplo: Dezembro - 2024
+      if (groupedEvents[monthYearKey] == null) {
+        groupedEvents[monthYearKey] = [];
+      }
+      groupedEvents[monthYearKey]!.addAll(eventList);
+    });
+
+    return groupedEvents;
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> eventList = [];
-    events.forEach((date, eventDetails) {
-      for (var event in eventDetails) {
-        eventList.add(ListTile(
-          title: Text('${event["event"]}'),
-          subtitle: Text('Data: ${date.toLocal()} - Horário: ${event["time"]}'),
-        ));
-      }
-    });
+    Map<String, List<Map<String, String>>> groupedEvents = _groupEventsByMonth();
 
     return Scaffold(
       appBar: AppBar(
@@ -254,9 +365,124 @@ class TelaListaEventos extends StatelessWidget {
         backgroundColor: Colors.blueGrey,
       ),
       body: ListView(
-        children: eventList.isEmpty ? [const Center(child: Text("Nenhum evento registrado."))] : eventList,
+        children: groupedEvents.entries.map((entry) {
+          String monthYear = entry.key;  // Ex: Dezembro - 2024
+          List<Map<String, String>> eventsList = entry.value;
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: Card(
+              elevation: 4.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              child: Column(
+                children: [
+                  // Título do mês
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      monthYear, // Exibe o mês e ano no formato desejado
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  // Lista de eventos
+                  Column(
+                    children: eventsList.map((event) {
+                      return InkWell(
+                        onTap: () {
+                          // Ação ao clicar no evento (detalhamento)
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text(event["event"]!),
+                                content: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Horário: ${event["time"]}'),
+                                    SizedBox(height: 8),
+                                    Text('Descrição: ${event["description"]}'),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Fechar'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          elevation: 3.0,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              children: [
+                                // Ícone representativo do evento
+                                Icon(
+                                  Icons.event_note,
+                                  color: Colors.blueGrey,
+                                  size: 32.0,
+                                ),
+                                const SizedBox(width: 16),
+                                // Informações do evento
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        event["event"]!,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Horário: ${event["time"]}',
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        event["description"]!,
+                                        style: const TextStyle(
+                                          color: Colors.black54,
+                                          fontSize: 14,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
 }
-

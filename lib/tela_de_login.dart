@@ -74,8 +74,7 @@ class _TelaLoginState extends State<TelaLogin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
-      backgroundColor: const Color.fromARGB(255, 0, 0, 0), 
+      backgroundColor: Colors.white, // Cor de fundo mais suave
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -85,47 +84,48 @@ class _TelaLoginState extends State<TelaLogin> {
               children: [
                 Image.asset(
                   'eventsy_sem_fundo.png',
-                  width: 150,
-                  height: 150,
+                  width: 180,
+                  height: 180,
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Simples Agenda',
+                  'Agenda Eventsy',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey,
+                    color: Colors.black, // Cor mais neutra
                   ),
                 ),
                 const SizedBox(height: 20),
                 Card(
-  elevation: 5,
-  color: const Color.fromARGB(255, 0, 0, 0), 
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(8.0),
-  ),
+                  elevation: 5,
+                  color: Colors.white, // Cor mais neutra
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
                       children: [
                         TextFormField(
-                          cursorColor: Color(0xFFFFD700),
+                          cursorColor: Colors.blueGrey,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             labelText: 'Email',
-                            prefixIcon: const Icon(Icons.email),
+                            labelStyle: TextStyle(color: Colors.grey),
+                            prefixIcon: const Icon(Icons.email, color: Colors.grey),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Color(0xFFFFD700), 
-                                width: 2,
+                                color: Colors.grey, // Cor mais suave
+                                width: 1.5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Color(0xFFFFD700), 
+                                color: Colors.blueGrey, // Cor mais suave
                                 width: 2,
                               ),
                             ),
@@ -133,23 +133,24 @@ class _TelaLoginState extends State<TelaLogin> {
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
-                          cursorColor: Color(0xFFFFD700),
+                          cursorColor: Colors.blueGrey,
                           controller: _senhaController,
                           obscureText: true,
                           decoration: InputDecoration(
                             labelText: 'Senha',
-                            prefixIcon: const Icon(Icons.lock),
+                            labelStyle: TextStyle(color: Colors.grey),
+                            prefixIcon: const Icon(Icons.lock, color: Colors.grey),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Color(0xFFFFD700), // Dourado
-                                width: 2,
+                                color: Colors.grey, // Cor mais suave
+                                width: 1.5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Color(0xFFFFD700), // Dourado mais escuro
+                                color: Colors.blueGrey, // Cor mais suave
                                 width: 2,
                               ),
                             ),
@@ -164,7 +165,7 @@ class _TelaLoginState extends State<TelaLogin> {
                             },
                             child: const Text(
                               'Esqueceu sua senha?',
-                              style: TextStyle(color: Color(0xFFFFD700)),
+                              style: TextStyle(color: Colors.blueGrey),
                             ),
                           ),
                         ),
@@ -176,7 +177,7 @@ class _TelaLoginState extends State<TelaLogin> {
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 40, vertical: 15),
-                                  backgroundColor: const Color.fromARGB(215, 248, 211, 0),
+                                  backgroundColor: Colors.blueGrey, // Cor mais suave
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
@@ -184,7 +185,7 @@ class _TelaLoginState extends State<TelaLogin> {
                                 child: const Text(
                                   'LOGIN',
                                   style: TextStyle(
-                                      fontSize: 16, color: Color.fromARGB(255, 255, 255, 255)),
+                                      fontSize: 16, color: Colors.white),
                                 ),
                               ),
                       ],
@@ -197,20 +198,20 @@ class _TelaLoginState extends State<TelaLogin> {
                     const Expanded(
                       child: Divider(
                         thickness: 1,
-                        color: Color.fromARGB(215, 248, 211, 0),
+                        color: Colors.blueGrey, // Cor mais suave
                       ),
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.0),
                       child: Text(
                         'Novo no aplicativo?',
-                        style: TextStyle(color: Color.fromARGB(215, 248, 211, 0)),
+                        style: TextStyle(color: Colors.blueGrey),
                       ),
                     ),
                     const Expanded(
                       child: Divider(
                         thickness: 1,
-                         color: Color.fromARGB(215, 248, 211, 0),
+                        color: Colors.blueGrey, // Cor mais suave
                       ),
                     ),
                   ],
@@ -227,14 +228,14 @@ class _TelaLoginState extends State<TelaLogin> {
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 15),
-                    side: const BorderSide(color: Color(0xFFFFD700)),
+                    side: const BorderSide(color: Colors.blueGrey), // Cor mais suave
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
                   child: const Text(
                     'Criar sua conta do Simples Agenda',
-                    style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 255, 255, 255)),
+                    style: TextStyle(fontSize: 16, color: Colors.blueGrey),
                   ),
                 ),
               ],
@@ -244,4 +245,4 @@ class _TelaLoginState extends State<TelaLogin> {
       ),
     );
   }
-}
+}  
