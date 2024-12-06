@@ -32,7 +32,6 @@ class _TelaCalendarioState extends State<TelaCalendario> {
 
   // Carrega os eventos do Firestore
   void _loadEvents() async {
-    // Verifica se o usuário está autenticado
     if (user == null) {
       print('Usuário não autenticado!');
       return;
@@ -43,11 +42,6 @@ class _TelaCalendarioState extends State<TelaCalendario> {
           .where('userId', isEqualTo: user?.uid)
           .get();
 
-      // Verificando se a consulta retornou documentos
-      if (snapshot.docs.isEmpty) {
-        print('Nenhum evento encontrado!');
-      }
-
       for (var doc in snapshot.docs) {
         DateTime eventDate = DateTime.parse(doc['date']);
         if (_events[eventDate] == null) {
@@ -56,7 +50,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
         _events[eventDate]!.add({
           "event": doc['event'],
           "time": doc['time'],
-          "description": doc['description'], // Adicionando descrição
+          "description": doc['description'],
         });
       }
       setState(() {});
@@ -71,21 +65,25 @@ class _TelaCalendarioState extends State<TelaCalendario> {
       'date': _selectedDay.toIso8601String(),
       'event': event,
       'time': time,
-      'description': description, // Adicionando descrição
+      'description': description,
     });
 
     setState(() {
       if (_events[_selectedDay] == null) {
         _events[_selectedDay] = [];
       }
-      _events[_selectedDay]!.add({"event": event, "time": time, "description": description});
+      _events[_selectedDay]!.add({
+        "event": event,
+        "time": time,
+        "description": description,
+      });
     });
   }
 
   // Mostra o diálogo para adicionar evento
   void _showAddEventDialog(BuildContext context) {
     TextEditingController eventController = TextEditingController();
-    TextEditingController descriptionController = TextEditingController(); // Controller para descrição
+    TextEditingController descriptionController = TextEditingController();
     TimeOfDay selectedTime = TimeOfDay.now();
 
     showDialog(
@@ -104,7 +102,6 @@ class _TelaCalendarioState extends State<TelaCalendario> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Campo de texto para o evento
                   TextField(
                     controller: eventController,
                     decoration: InputDecoration(
@@ -116,7 +113,6 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Campo de texto para a descrição
                   TextField(
                     controller: descriptionController,
                     decoration: InputDecoration(
@@ -126,10 +122,9 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
-                    maxLines: 3,  // Definindo um limite de linhas para a descrição
+                    maxLines: 3,
                   ),
                   const SizedBox(height: 16),
-                  // Seletor de horário
                   GestureDetector(
                     onTap: () async {
                       TimeOfDay? pickedTime = await showTimePicker(
@@ -178,7 +173,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                       _addEvent(
                         eventController.text,
                         selectedTime.format(context),
-                        descriptionController.text, // Passando a descrição
+                        descriptionController.text,
                       );
                       Navigator.pop(context);
                     }
@@ -310,6 +305,12 @@ class _TelaCalendarioState extends State<TelaCalendario> {
             eventLoader: (day) {
               return _events[day] ?? [];
             },
+            calendarStyle: const CalendarStyle(
+              markerDecoration: BoxDecoration(
+                color: Colors.blueGrey,
+                shape: BoxShape.circle,
+              ),
+            ),
           ),
           const SizedBox(height: 20),
           ElevatedButton(
@@ -328,6 +329,33 @@ class _TelaCalendarioState extends State<TelaCalendario> {
               style: TextStyle(fontSize: 16),
             ),
           ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: ListView(
+              children: (_events[_selectedDay] ?? []).map((event) {
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: ListTile(
+                    title: Text(
+                      event["event"]!,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Horário: ${event["time"]}'),
+                        Text('Descrição: ${event["description"]}'),
+                      ],
+                    ),
+                    trailing: const Icon(Icons.event_note, color: Colors.blueGrey),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
         ],
       ),
     );
@@ -339,13 +367,11 @@ class TelaListaEventos extends StatelessWidget {
 
   const TelaListaEventos({super.key, required this.events});
 
-  // Função para agrupar eventos por mês e ano
   Map<String, List<Map<String, String>>> _groupEventsByMonth() {
     Map<String, List<Map<String, String>>> groupedEvents = {};
 
     events.forEach((date, eventList) {
-      // Formatando a chave para "Mês - Ano"
-      String monthYearKey = DateFormat('MMMM - yyyy').format(date);  // Exemplo: Dezembro - 2024
+      String monthYearKey = DateFormat('MMMM - yyyy').format(date);
       if (groupedEvents[monthYearKey] == null) {
         groupedEvents[monthYearKey] = [];
       }
@@ -366,7 +392,7 @@ class TelaListaEventos extends StatelessWidget {
       ),
       body: ListView(
         children: groupedEvents.entries.map((entry) {
-          String monthYear = entry.key;  // Ex: Dezembro - 2024
+          String monthYear = entry.key;
           List<Map<String, String>> eventsList = entry.value;
 
           return Padding(
@@ -378,33 +404,31 @@ class TelaListaEventos extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  // Título do mês
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                      monthYear, // Exibe o mês e ano no formato desejado
+                      monthYear,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  // Lista de eventos
                   Column(
                     children: eventsList.map((event) {
                       return InkWell(
                         onTap: () {
-                          // Ação ao clicar no evento (detalhamento)
                           showDialog(
                             context: context,
                             builder: (context) {
                               return AlertDialog(
                                 title: Text(event["event"]!),
                                 content: Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text('Horário: ${event["time"]}'),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Text('Descrição: ${event["description"]}'),
                                   ],
                                 ),
@@ -430,14 +454,12 @@ class TelaListaEventos extends StatelessWidget {
                             padding: const EdgeInsets.all(16.0),
                             child: Row(
                               children: [
-                                // Ícone representativo do evento
                                 Icon(
                                   Icons.event_note,
                                   color: Colors.blueGrey,
                                   size: 32.0,
                                 ),
                                 const SizedBox(width: 16),
-                                // Informações do evento
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
