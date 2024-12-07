@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_prova/tela_calendario.dart'; // Importando a tela de calendário
 
 class TelaInicialPersonalizada extends StatelessWidget {
   const TelaInicialPersonalizada({super.key});
@@ -9,6 +10,64 @@ class TelaInicialPersonalizada extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Inicial'),
         centerTitle: true,
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Color(0xFF32CD99),
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    'Menu',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  ),
+                  const Text('Bem-vindo, Usuário!'),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Início'),
+              onTap: () {
+                Navigator.pop(context); // Fecha o drawer
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_month_outlined),
+              title: const Text('Calendário'),
+              onTap: () {
+                Navigator.pop(context); // Fecha o drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TelaCalendario()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Configurações'),
+              onTap: () {
+                Navigator.pop(context); // Fecha o drawer
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Sair'),
+              onTap: () {
+                // Lógica de saída
+                Navigator.pop(context); // Fecha o drawer
+                // Pode adicionar a lógica de logout aqui
+              },
+            ),
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_prova/tela_de_login.dart';
+import 'package:flutter_application_prova/tela_inicial.dart'; // Importando a tela inicial
 import 'package:intl/intl.dart'; 
 import 'package:table_calendar/table_calendar.dart';
+import 'tela_de_login.dart';
 
 class TelaCalendario extends StatefulWidget {
   const TelaCalendario({super.key});
@@ -59,60 +60,62 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     }
   }
 
-void _showDeleteConfirmationDialog(BuildContext context, Map<String, String> event) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Confirmar Exclusão'),
-        content: const Text('Você tem certeza que deseja excluir este evento?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Fecha o diálogo
-            },
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () async {
-              // Remove o evento do Firestore
-              await _deleteEvent(event);
-              Navigator.pop(context); // Fecha o diálogo
-            },
-            child: const Text('Excluir'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-Future<void> _deleteEvent(Map<String, String> event) async {
-  try {
-    final snapshot = await eventsCollection
-        .where('userId', isEqualTo: user?.uid)
-        .where('date', isEqualTo: _selectedDay.toIso8601String())
-        .where('event', isEqualTo: event['event'])
-        .where('time', isEqualTo: event['time'])
-        .get();
-
-    for (var doc in snapshot.docs) {
-      await doc.reference.delete();
-    }
-
-    setState(() {
-      _events[_selectedDay]?.remove(event);
-      if (_events[_selectedDay]?.isEmpty ?? false) {
-        _events.remove(_selectedDay);
-      }
-    });
-  } catch (e) {
-    print('Erro ao excluir evento: $e');
+  // Exibe o diálogo de confirmação para deletar um evento
+  void _showDeleteConfirmationDialog(BuildContext context, Map<String, String> event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar Exclusão'),
+          content: const Text('Você tem certeza que deseja excluir este evento?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Fecha o diálogo
+              },
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () async {
+                // Remove o evento do Firestore
+                await _deleteEvent(event);
+                Navigator.pop(context); // Fecha o diálogo
+              },
+              child: const Text('Excluir'),
+            ),
+          ],
+        );
+      },
+    );
   }
-}
 
+  // Deleta o evento do Firestore
+  Future<void> _deleteEvent(Map<String, String> event) async {
+    try {
+      final snapshot = await eventsCollection
+          .where('userId', isEqualTo: user?.uid)
+          .where('date', isEqualTo: _selectedDay.toIso8601String())
+          .where('event', isEqualTo: event['event'])
+          .where('time', isEqualTo: event['time'])
+          .get();
 
+      for (var doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      setState(() {
+        _events[_selectedDay]?.remove(event);
+        if (_events[_selectedDay]?.isEmpty ?? false) {
+          _events.remove(_selectedDay);
+        }
+      });
+    } catch (e) {
+      print('Erro ao excluir evento: $e');
+    }
+  }
+
+  // Adiciona um evento ao Firestore
   void _addEvent(String event, String time, String description) async {
     await eventsCollection.add({
       'userId': user?.uid,
@@ -134,7 +137,7 @@ Future<void> _deleteEvent(Map<String, String> event) async {
     });
   }
 
-  // Mostra o diálogo para adicionar evento
+  // Mostra o diálogo para adicionar um novo evento
   void _showAddEventDialog(BuildContext context) {
     TextEditingController eventController = TextEditingController();
     TextEditingController descriptionController = TextEditingController();
@@ -277,14 +280,18 @@ Future<void> _deleteEvent(Map<String, String> event) async {
               leading: const Icon(Icons.home),
               title: const Text('Início'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(context); // Fecha o drawer
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TelaInicialPersonalizada()), // Navegar para a tela inicial
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.calendar_month_outlined),
               title: const Text('Calendário'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(context); // Fecha o drawer
               },
             ),
             ListTile(
@@ -385,37 +392,36 @@ Future<void> _deleteEvent(Map<String, String> event) async {
           ),
           const SizedBox(height: 20),
           Expanded(
-  child: ListView(
-    children: (_events[_selectedDay] ?? []).map((event) {
-      return Card(
-        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: ListTile(
-          title: Text(
-            event["event"]!,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            child: ListView(
+              children: (_events[_selectedDay] ?? []).map((event) {
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: ListTile(
+                    title: Text(
+                      event["event"]!,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Horário: ${event["time"]}'),
+                        Text('Descrição: ${event["description"]}'),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        _showDeleteConfirmationDialog(context, event);
+                      },
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Horário: ${event["time"]}'),
-              Text('Descrição: ${event["description"]}'),
-            ],
-          ),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () {
-              _showDeleteConfirmationDialog(context, event);
-            },
-          ),
-        ),
-      );
-    }).toList(),
-  ),
-),
-
         ],
       ),
     );
