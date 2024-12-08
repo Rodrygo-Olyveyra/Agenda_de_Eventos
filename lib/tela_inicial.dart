@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_prova/tela_calendario.dart'; // Importando a tela de calendário
-
+import 'package:flutter_application_prova/tela_calendario.dart'; 
+import 'package:flutter_application_prova/tela_orçamento.dart'; 
+import 'package:flutter_application_prova/tela_fornecedores.dart'; 
 class TelaInicialPersonalizada extends StatelessWidget {
   const TelaInicialPersonalizada({super.key});
 
@@ -15,20 +16,20 @@ class TelaInicialPersonalizada extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            DrawerHeader(
-              decoration: const BoxDecoration(
+            const DrawerHeader(
+              decoration: BoxDecoration(
                 color: Color(0xFF32CD99),
               ),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     'Menu',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                     ),
                   ),
-                  const Text('Bem-vindo, Usuário!'),
+                  Text('Bem-vindo, Usuário!'),
                 ],
               ),
             ),
@@ -133,14 +134,20 @@ class TelaInicialPersonalizada extends StatelessWidget {
                     icon: Icons.attach_money,
                     label: 'Orçamento',
                     onTap: () {
-                      // Ação do menu Orçamento
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const TelaOrcamento()),
+                      );
                     },
                   ),
                   _buildMenuItem(
                     icon: Icons.business,
                     label: 'Fornecedores',
                     onTap: () {
-                      // Ação do menu Fornecedores
+                   Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const TelaFornecedor()),
+                      );
                     },
                   ),
                 ],

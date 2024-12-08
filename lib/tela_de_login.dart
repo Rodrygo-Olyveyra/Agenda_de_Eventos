@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'tela_cadastro.dart';
-import 'tela_calendario.dart';
+import 'tela_inicial.dart';
 
 
 class TelaLogin extends StatefulWidget {
@@ -45,7 +45,7 @@ class _TelaLoginState extends State<TelaLogin> {
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const TelaCalendario()),
+          MaterialPageRoute(builder: (context) => const TelaInicialPersonalizada()),
         );
       }
     } on FirebaseAuthException catch (e) {
