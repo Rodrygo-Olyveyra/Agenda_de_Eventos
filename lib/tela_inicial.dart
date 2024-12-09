@@ -1,11 +1,76 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_prova/tela_calendario.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'tela_calendario.dart';
 import 'tela_lista_fornecedores.dart';
 import 'tela_lista_orcamento.dart';
 import 'tela_lista_convidados.dart';
+import 'tela_de_login.dart';
 
-class TelaInicialPersonalizada extends StatelessWidget {
+class TelaInicialPersonalizada extends StatefulWidget {
   const TelaInicialPersonalizada({super.key});
+
+  @override
+  _TelaInicialPersonalizadaState createState() => _TelaInicialPersonalizadaState();
+}
+
+class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
+  late Map<DateTime, List<Map<String, String>>> _events;
+  late CollectionReference eventsCollection;
+  late User? user;
+
+  @override
+  void initState() {
+    super.initState();
+    _events = {};
+    user = FirebaseAuth.instance.currentUser;
+    eventsCollection = FirebaseFirestore.instance.collection('events');
+    _loadEvents();
+  }
+
+  // Carrega os eventos do Firestore
+  void _loadEvents() async {
+    if (user == null) {
+      print('Usuário não autenticado!');
+      return;
+    }
+
+    try {
+      final snapshot = await eventsCollection.get();
+      for (var doc in snapshot.docs) {
+        DateTime eventDate = DateTime.parse(doc['date']);
+        if (_events[eventDate] == null) {
+          _events[eventDate] = [];
+        }
+        _events[eventDate]!.add({
+          "event": doc['event'],
+          "time": doc['time'],
+          "description": doc['description'],
+        });
+      }
+      setState(() {});
+    } catch (e) {
+      print('Erro ao carregar eventos: $e');
+    }
+  }
+
+  // Função para agrupar os eventos por mês
+  Map<String, List<Map<String, String>>> _groupEventsByMonth() {
+    Map<String, List<Map<String, String>>> groupedEvents = {};
+
+    _events.forEach((date, eventList) {
+      String monthYearKey = DateFormat('MMMM - yyyy', 'pt_BR').format(date);
+      if (groupedEvents[monthYearKey] == null) {
+        groupedEvents[monthYearKey] = [];
+      }
+      groupedEvents[monthYearKey]!.addAll(eventList);
+    });
+
+    groupedEvents.removeWhere((key, value) => value.isEmpty);
+
+    return groupedEvents;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,14 +110,14 @@ class TelaInicialPersonalizada extends StatelessWidget {
               leading: const Icon(Icons.home),
               title: const Text('Início'),
               onTap: () {
-                Navigator.pop(context); // Fecha o drawer
+                Navigator.pop(context);
               },
             ),
             ListTile(
               leading: const Icon(Icons.calendar_month_outlined),
               title: const Text('Calendário'),
               onTap: () {
-                Navigator.pop(context); // Fecha o drawer
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const TelaCalendario()),
@@ -60,19 +125,30 @@ class TelaInicialPersonalizada extends StatelessWidget {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.list),
+              title: const Text('Lista de Eventos'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TelaListaEventos(events: _events),
+                  ),
+                );
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Configurações'),
               onTap: () {
-                Navigator.pop(context); // Fecha o drawer
+                Navigator.pop(context);
               },
             ),
             ListTile(
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Sair'),
               onTap: () {
-                // Lógica de saída
-                Navigator.pop(context); // Fecha o drawer
-                // Pode adicionar a lógica de logout aqui
+                _confirmarLogout(context);
               },
             ),
           ],
@@ -83,7 +159,6 @@ class TelaInicialPersonalizada extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Contagem regressiva e informações do evento
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -119,7 +194,6 @@ class TelaInicialPersonalizada extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // Menu
             const Text(
               'MENU',
               style: TextStyle(
@@ -170,6 +244,36 @@ class TelaInicialPersonalizada extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _confirmarLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar Logout'),
+          content: const Text('Você tem certeza de que deseja sair?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TelaLogin()),
+                );
+              },
+              child: const Text('Sair'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -224,6 +328,40 @@ class ContadorItem extends StatelessWidget {
         const SizedBox(height: 4),
         Text(label),
       ],
+    );
+  }
+}
+
+class TelaListaEventos extends StatelessWidget {
+  final Map<DateTime, List<Map<String, String>>> events;
+
+  const TelaListaEventos({super.key, required this.events});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Lista de Eventos'),
+      ),
+      body: events.isEmpty
+          ? const Center(child: Text('Não há eventos cadastrados.'))
+          : ListView.builder(
+              itemCount: events.length,
+              itemBuilder: (context, index) {
+                DateTime eventDate = events.keys.elementAt(index);
+                List<Map<String, String>> eventList = events[eventDate]!;
+                return ExpansionTile(
+                  title: Text(DateFormat('MMMM yyyy', 'pt_BR').format(eventDate)),
+                  children: eventList.map((event) {
+                    return ListTile(
+                      title: Text(event['event'] ?? 'Evento sem nome'),
+                      subtitle: Text('Hora: ${event['time']}'),
+                      onTap: () {},
+                    );
+                  }).toList(),
+                );
+              },
+            ),
     );
   }
 }
