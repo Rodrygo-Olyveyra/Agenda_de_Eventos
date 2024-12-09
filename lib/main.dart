@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'tela_de_login.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +24,16 @@ class SimplesAgendaApp extends StatelessWidget {
         primarySwatch: Colors.blueGrey,
       ),
       home: const TelaLogin(),
+      supportedLocales: const [
+        Locale('en', 'US'), // Inglês
+        Locale('pt', 'BR'), // Português
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      locale: const Locale('pt', 'BR'), // Define o idioma padrão como português
     );
   }
 }

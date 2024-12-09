@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_prova/tela_inicial.dart'; // Importando a tela inicial
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'tela_de_login.dart';
 
@@ -321,7 +321,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: const Text('Confirmação'),
+                      title: const Text('Confirmar Logout'),
                       content: const Text('Você tem certeza que deseja sair?'),
                       actions: [
                         TextButton(
@@ -330,12 +330,14 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                           },
                           child: const Text('Cancelar'),
                         ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
+                        ElevatedButton(
+                          onPressed: () async {
+                            await FirebaseAuth.instance.signOut();
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (context) => const TelaLogin()),
+                              MaterialPageRoute(
+                                builder: (context) => const TelaLogin(),
+                              ),
                             );
                           },
                           child: const Text('Sair'),
@@ -353,7 +355,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
         children: [
           TableCalendar(
             firstDay: DateTime.utc(2020, 1, 1),
-            lastDay: DateTime.utc(2030, 12, 31),
+            lastDay: DateTime.utc(2025, 12, 31),
             focusedDay: _focusedDay,
             selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
             onDaySelected: (selectedDay, focusedDay) {
@@ -365,62 +367,34 @@ class _TelaCalendarioState extends State<TelaCalendario> {
             eventLoader: (day) {
               return _events[day] ?? [];
             },
-            calendarStyle: const CalendarStyle(
-              markerDecoration: BoxDecoration(
-                color: Colors.blueGrey,
-                shape: BoxShape.circle,
-              ),
-            ),
+            locale: 'pt_BR', // Configura a localidade para português
           ),
           const SizedBox(height: 16),
-          // Exibindo eventos para o dia selecionado
-          if (_events[_selectedDay]?.isNotEmpty ?? false)
-            Expanded(
-              child: ListView.builder(
-                itemCount: _events[_selectedDay]?.length ?? 0,
-                itemBuilder: (context, index) {
-                  var event = _events[_selectedDay]![index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    child: ListTile(
-                      title: Text(event["event"]!),
-                      subtitle: Text('${event["time"]!} - ${event["description"]!}'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _showDeleteConfirmationDialog(context, event),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            )
-          else
-            const Text('Nenhum evento para este dia.'),
           ElevatedButton(
-            onPressed: () => _showAddEventDialog(context),
+            onPressed: () {
+              _showAddEventDialog(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueGrey,
+            ),
             child: const Text('Adicionar Evento'),
           ),
         ],
       ),
     );
   }
-}
 
-class TelaListaEventos extends StatelessWidget {
-  final Map<DateTime, List<Map<String, String>>> events;
-
-  const TelaListaEventos({super.key, required this.events});
-
+  // Função para agrupar os eventos por mês
   Map<String, List<Map<String, String>>> _groupEventsByMonth() {
     Map<String, List<Map<String, String>>> groupedEvents = {};
 
     // Agrupar eventos por mês e ano
-    events.forEach((date, eventList) {
-      String monthYearKey = DateFormat('MMMM - yyyy').format(date);  // Agrupar por mês e ano
+    _events.forEach((date, eventList) {
+      String monthYearKey = DateFormat('MMMM - yyyy', 'pt_BR').format(date); // Usando 'pt_BR' para garantir que os meses sejam em português
       if (groupedEvents[monthYearKey] == null) {
         groupedEvents[monthYearKey] = [];
       }
-      groupedEvents[monthYearKey]!.addAll(eventList);  // Adiciona os eventos para o mês
+      groupedEvents[monthYearKey]!.addAll(eventList); // Adiciona os eventos para o mês
     });
 
     // Filtra apenas os meses que têm eventos
@@ -428,29 +402,41 @@ class TelaListaEventos extends StatelessWidget {
 
     return groupedEvents;
   }
+}
+
+// Tela de Lista de Eventos
+class TelaListaEventos extends StatelessWidget {
+  final Map<DateTime, List<Map<String, String>>> events;
+
+  const TelaListaEventos({super.key, required this.events});
 
   @override
   Widget build(BuildContext context) {
-    Map<String, List<Map<String, String>>> groupedEvents = _groupEventsByMonth();
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Eventos por Mês'),
-        backgroundColor: Colors.blueGrey,
+        title: const Text('Lista de Eventos'),
       ),
-      body: ListView(
-        children: groupedEvents.keys.map((monthYear) {
-          return ExpansionTile(
-            title: Text(monthYear),
-            children: groupedEvents[monthYear]!.map((event) {
-              return ListTile(
-                title: Text(event["event"]!),
-                subtitle: Text(event["description"]!),
-              );
-            }).toList(),
-          );
-        }).toList(),
-      ),
+      body: events.isEmpty
+          ? const Center(child: Text('Não há eventos cadastrados.'))
+          : ListView.builder(
+              itemCount: events.length,
+              itemBuilder: (context, index) {
+                DateTime eventDate = events.keys.elementAt(index);
+                List<Map<String, String>> eventList = events[eventDate]!;
+                return ExpansionTile(
+                  title: Text(DateFormat('MMMM yyyy', 'pt_BR').format(eventDate)),
+                  children: eventList.map((event) {
+                    return ListTile(
+                      title: Text(event['event'] ?? 'Evento sem nome'),
+                      subtitle: Text('Hora: ${event['time']}'),
+                      onTap: () {
+                        // Aqui pode adicionar ação para ver mais detalhes
+                      },
+                    );
+                  }).toList(),
+                );
+              },
+            ),
     );
   }
 }

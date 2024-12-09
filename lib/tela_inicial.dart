@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_prova/tela_calendario.dart'; 
 import 'package:flutter_application_prova/tela_orçamento.dart'; 
-import 'package:flutter_application_prova/tela_fornecedores.dart'; 
+import 'package:flutter_application_prova/tela_fornecedores.dart';
+ 
 class TelaInicialPersonalizada extends StatelessWidget {
   const TelaInicialPersonalizada({super.key});
 
