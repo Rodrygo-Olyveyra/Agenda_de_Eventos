@@ -39,9 +39,8 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     }
 
     try {
-      final snapshot = await eventsCollection
-          .where('userId', isEqualTo: user?.uid)
-          .get();
+      // Remova o filtro onde 'userId' é igual ao 'user?.uid'
+      final snapshot = await eventsCollection.get();
 
       for (var doc in snapshot.docs) {
         DateTime eventDate = DateTime.parse(doc['date']);
@@ -373,54 +372,33 @@ class _TelaCalendarioState extends State<TelaCalendario> {
               ),
             ),
           ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              _showAddEventDialog(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueGrey,
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
+          const SizedBox(height: 16),
+          // Exibindo eventos para o dia selecionado
+          if (_events[_selectedDay]?.isNotEmpty ?? false)
+            Expanded(
+              child: ListView.builder(
+                itemCount: _events[_selectedDay]?.length ?? 0,
+                itemBuilder: (context, index) {
+                  var event = _events[_selectedDay]![index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    child: ListTile(
+                      title: Text(event["event"]!),
+                      subtitle: Text('${event["time"]!} - ${event["description"]!}'),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _showDeleteConfirmationDialog(context, event),
+                      ),
+                    ),
+                  );
+                },
               ),
-            ),
-            child: const Text(
-              'ADICIONAR EVENTO',
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: ListView(
-              children: (_events[_selectedDay] ?? []).map((event) {
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: ListTile(
-                    title: Text(
-                      event["event"]!,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Horário: ${event["time"]}'),
-                        Text('Descrição: ${event["description"]}'),
-                      ],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        _showDeleteConfirmationDialog(context, event);
-                      },
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
+            )
+          else
+            const Text('Nenhum evento para este dia.'),
+          ElevatedButton(
+            onPressed: () => _showAddEventDialog(context),
+            child: const Text('Adicionar Evento'),
           ),
         ],
       ),
@@ -436,13 +414,17 @@ class TelaListaEventos extends StatelessWidget {
   Map<String, List<Map<String, String>>> _groupEventsByMonth() {
     Map<String, List<Map<String, String>>> groupedEvents = {};
 
+    // Agrupar eventos por mês e ano
     events.forEach((date, eventList) {
-      String monthYearKey = DateFormat('MMMM - yyyy').format(date);
+      String monthYearKey = DateFormat('MMMM - yyyy').format(date);  // Agrupar por mês e ano
       if (groupedEvents[monthYearKey] == null) {
         groupedEvents[monthYearKey] = [];
       }
-      groupedEvents[monthYearKey]!.addAll(eventList);
+      groupedEvents[monthYearKey]!.addAll(eventList);  // Adiciona os eventos para o mês
     });
+
+    // Filtra apenas os meses que têm eventos
+    groupedEvents.removeWhere((key, value) => value.isEmpty); // Remover meses sem eventos
 
     return groupedEvents;
   }
@@ -453,121 +435,19 @@ class TelaListaEventos extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista de Eventos'),
+        title: const Text('Eventos por Mês'),
         backgroundColor: Colors.blueGrey,
       ),
       body: ListView(
-        children: groupedEvents.entries.map((entry) {
-          String monthYear = entry.key;
-          List<Map<String, String>> eventsList = entry.value;
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-            child: Card(
-              elevation: 4.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      monthYear,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Column(
-                    children: eventsList.map((event) {
-                      return InkWell(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text(event["event"]!),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Horário: ${event["time"]}'),
-                                    const SizedBox(height: 8),
-                                    Text('Descrição: ${event["description"]}'),
-                                  ],
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text('Fechar'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        child: Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          elevation: 3.0,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.event_note,
-                                  color: Colors.blueGrey,
-                                  size: 32.0,
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        event["event"]!,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Horário: ${event["time"]}',
-                                        style: const TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        event["description"]!,
-                                        style: const TextStyle(
-                                          color: Colors.black54,
-                                          fontSize: 14,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            ),
+        children: groupedEvents.keys.map((monthYear) {
+          return ExpansionTile(
+            title: Text(monthYear),
+            children: groupedEvents[monthYear]!.map((event) {
+              return ListTile(
+                title: Text(event["event"]!),
+                subtitle: Text(event["description"]!),
+              );
+            }).toList(),
           );
         }).toList(),
       ),
