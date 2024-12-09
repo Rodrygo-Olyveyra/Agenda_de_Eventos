@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_prova/tela_calendario.dart'; 
-import 'package:flutter_application_prova/tela_orçamento.dart'; 
-import 'package:flutter_application_prova/tela_fornecedores.dart';
- 
+import 'package:flutter_application_prova/tela_calendario.dart';
+import 'tela_lista_fornecedores.dart';
+import 'tela_lista_orcamento.dart';
+import 'tela_lista_convidados.dart';
+
 class TelaInicialPersonalizada extends StatelessWidget {
   const TelaInicialPersonalizada({super.key});
 
@@ -30,7 +31,13 @@ class TelaInicialPersonalizada extends StatelessWidget {
                       fontSize: 24,
                     ),
                   ),
-                  Text('Bem-vindo, Usuário!'),
+                  SizedBox(height: 8),
+                  Text(
+                    'Bem-vindo, Usuário!',
+                    style: TextStyle(
+                      color: Colors.white70,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -115,7 +122,10 @@ class TelaInicialPersonalizada extends StatelessWidget {
             // Menu
             const Text(
               'MENU',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
             ),
             const SizedBox(height: 8),
             Expanded(
@@ -128,7 +138,10 @@ class TelaInicialPersonalizada extends StatelessWidget {
                     icon: Icons.people,
                     label: 'Convidados',
                     onTap: () {
-                      // Ação do menu Convidados
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const TelaListaConvidados()),
+                      );
                     },
                   ),
                   _buildMenuItem(
@@ -137,7 +150,7 @@ class TelaInicialPersonalizada extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const TelaOrcamento()),
+                        MaterialPageRoute(builder: (context) => const TelaListaOrcamento()),
                       );
                     },
                   ),
@@ -145,9 +158,9 @@ class TelaInicialPersonalizada extends StatelessWidget {
                     icon: Icons.business,
                     label: 'Fornecedores',
                     onTap: () {
-                   Navigator.push(
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const TelaFornecedor()),
+                        MaterialPageRoute(builder: (context) => const TelaListaFornecedores()),
                       );
                     },
                   ),
@@ -172,10 +185,15 @@ class TelaInicialPersonalizada extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 30,
-            child: Icon(icon, size: 30),
+            backgroundColor: Colors.blueAccent,
+            child: Icon(icon, size: 30, color: Colors.white),
           ),
           const SizedBox(height: 8),
-          Text(label, textAlign: TextAlign.center),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 14),
+          ),
         ],
       ),
     );
