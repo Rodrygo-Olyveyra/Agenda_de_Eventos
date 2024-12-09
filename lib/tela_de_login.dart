@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'tela_cadastro.dart';
 import 'tela_inicial.dart';
-
+import 'tela_esqueceu_senha.dart';
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -75,7 +75,7 @@ class _TelaLoginState extends State<TelaLogin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, 
+      backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -94,7 +94,7 @@ class _TelaLoginState extends State<TelaLogin> {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black, 
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -151,7 +151,7 @@ class _TelaLoginState extends State<TelaLogin> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 0, 0, 0), 
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 width: 2,
                               ),
                             ),
@@ -162,6 +162,11 @@ class _TelaLoginState extends State<TelaLogin> {
                           alignment: Alignment.centerRight,
                           child: TextButton(
                             onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const TelaEsqueciSenha()),
+                              );
                             },
                             child: const Text(
                               'Esqueceu sua senha?',
@@ -177,7 +182,7 @@ class _TelaLoginState extends State<TelaLogin> {
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 40, vertical: 15),
-                                  backgroundColor: const Color.fromARGB(255, 0, 0, 0), 
+                                  backgroundColor: const Color.fromARGB(255, 0, 0, 0),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
@@ -234,7 +239,7 @@ class _TelaLoginState extends State<TelaLogin> {
                     ),
                   ),
                   child: const Text(
-                    'Criar sua conta do Simples Agenda',
+                    'Criar sua conta do Eventsy',
                     style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 25, 0, 255)),
                   ),
                 ),
@@ -245,4 +250,4 @@ class _TelaLoginState extends State<TelaLogin> {
       ),
     );
   }
-}  
+}
