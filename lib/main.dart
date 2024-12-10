@@ -25,15 +25,15 @@ class SimplesAgendaApp extends StatelessWidget {
       ),
       home: const TelaLogin(),
       supportedLocales: const [
-        Locale('en', 'US'), // Inglês
-        Locale('pt', 'BR'), // Português
+        Locale('en', 'US'),
+        Locale('pt', 'BR'),
       ],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      locale: const Locale('pt', 'BR'), // Define o idioma padrão como português
+      locale: const Locale('pt', 'BR'),
     );
   }
 }
