@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'tela_lista_convidados.dart';
 
 class TelaConvidados extends StatefulWidget {
   const TelaConvidados({super.key});
@@ -11,9 +13,52 @@ class _TelaConvidadosState extends State<TelaConvidados> {
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController sobrenomeController = TextEditingController();
   final TextEditingController notaController = TextEditingController();
+  final TextEditingController telefoneController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController enderecoController = TextEditingController();
 
   String tipoConvidado = 'Adulto';
   String genero = 'Outro';
+
+  Future<void> _adicionarConvidado() async {
+    final nome = nomeController.text;
+    final sobrenome = sobrenomeController.text;
+    final nota = notaController.text;
+    final telefone = telefoneController.text;
+    final email = emailController.text;
+    final endereco = enderecoController.text;
+
+    if (nome.isNotEmpty && sobrenome.isNotEmpty && nota.isNotEmpty) {
+      try {
+        await FirebaseFirestore.instance.collection('convidados').add({
+          'nome': nome,
+          'sobrenome': sobrenome,
+          'nota': nota,
+          'tipoConvidado': tipoConvidado,
+          'genero': genero,
+          'telefone': telefone,
+          'email': email,
+          'endereco': endereco,
+          'criadoEm': FieldValue.serverTimestamp(),
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Convidado adicionado com sucesso!')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const TelaListaConvidados()),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao adicionar convidado: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Preencha todos os campos obrigatórios!')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +68,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context), 
         ),
       ),
       body: Padding(
@@ -32,7 +77,6 @@ class _TelaConvidadosState extends State<TelaConvidados> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Nome e Sobrenome
               Row(
                 children: [
                   Expanded(
@@ -57,8 +101,6 @@ class _TelaConvidadosState extends State<TelaConvidados> {
                 ],
               ),
               const SizedBox(height: 16),
-
-              // Nota
               TextField(
                 controller: notaController,
                 decoration: const InputDecoration(
@@ -67,43 +109,36 @@ class _TelaConvidadosState extends State<TelaConvidados> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Tipo de Convidado (Adulto, Criança, Bebê) - Segmented Buttons
               _buildTipoConvidadoSelector(),
               const SizedBox(height: 20),
-
-              // Gênero (Masculino, Feminino, Outro) - Segmented Buttons
               _buildGeneroSelector(),
               const SizedBox(height: 20),
-
-              // Telefone, Email e Endereço
-              const TextField(
-                decoration: InputDecoration(
+              TextField(
+                controller: telefoneController,
+                decoration: const InputDecoration(
                   labelText: 'Telefone',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 10),
-              const TextField(
-                decoration: InputDecoration(
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
                   labelText: 'E-mail',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 10),
-              const TextField(
-                decoration: InputDecoration(
+              TextField(
+                controller: enderecoController,
+                decoration: const InputDecoration(
                   labelText: 'Endereço',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Botão Adicionar Convidado
               ElevatedButton(
-                onPressed: () {
-                  // Lógica para adicionar o convidado
-                },
+                onPressed: _adicionarConvidado,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   minimumSize: const Size(double.infinity, 50),
@@ -117,7 +152,6 @@ class _TelaConvidadosState extends State<TelaConvidados> {
     );
   }
 
-  // Selector de Tipo de Convidado (Adulto, Criança, Bebê)
   Widget _buildTipoConvidadoSelector() {
     return ToggleButtons(
       isSelected: [
@@ -154,7 +188,6 @@ class _TelaConvidadosState extends State<TelaConvidados> {
     );
   }
 
-  // Selector de Gênero (Masculino, Feminino, Outro)
   Widget _buildGeneroSelector() {
     return ToggleButtons(
       isSelected: [
