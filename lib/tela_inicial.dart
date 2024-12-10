@@ -342,23 +342,86 @@ class TelaListaEventos extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de Eventos'),
+        backgroundColor: Colors.blueGrey,
       ),
       body: events.isEmpty
-          ? const Center(child: Text('Não há eventos cadastrados.'))
+          ? const Center(
+              child: Text(
+                'Não há eventos cadastrados.',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            )
           : ListView.builder(
               itemCount: events.length,
               itemBuilder: (context, index) {
                 DateTime eventDate = events.keys.elementAt(index);
                 List<Map<String, String>> eventList = events[eventDate]!;
-                return ExpansionTile(
-                  title: Text(DateFormat('MMMM yyyy', 'pt_BR').format(eventDate)),
-                  children: eventList.map((event) {
-                    return ListTile(
-                      title: Text(event['event'] ?? 'Evento sem nome'),
-                      subtitle: Text('Hora: ${event['time']}'),
-                      onTap: () {},
-                    );
-                  }).toList(),
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Colors.blueGrey, width: 1),
+                  ),
+                  elevation: 4,
+                  child: ExpansionTile(
+                    title: Text(
+                      DateFormat('MMMM yyyy', 'pt_BR').format(eventDate),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    leading: const Icon(
+                      Icons.calendar_today,
+                      color: Colors.blueGrey,
+                    ),
+                    children: eventList.map((event) {
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: const BorderSide(color: Colors.blueGrey, width: 0.5),
+                        ),
+                        elevation: 2,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          title: Text(
+                            event['event'] ?? 'Evento sem nome',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Hora: ${event['time']}'),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Descrição: ${event['description']}',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ),
+                            onPressed: () {
+                              // Ação de exclusão do evento
+                            },
+                          ),
+                          onTap: () {
+                            // Aqui pode adicionar ação para ver mais detalhes
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 );
               },
             ),
