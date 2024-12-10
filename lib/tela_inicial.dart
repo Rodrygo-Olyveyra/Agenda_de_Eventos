@@ -29,7 +29,6 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
     _loadEvents();
   }
 
-  // Carrega os eventos do Firestore
   void _loadEvents() async {
     if (user == null) {
       print('Usuário não autenticado!');
@@ -44,6 +43,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
           _events[eventDate] = [];
         }
         _events[eventDate]!.add({
+          "id": doc.id,
           "event": doc['event'],
           "time": doc['time'],
           "description": doc['description'],
@@ -55,7 +55,36 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
     }
   }
 
-  // Função para agrupar os eventos por mês
+  Future<void> _deleteEvent(String eventId, DateTime eventDate, Map<String, String> event) async {
+    try {
+      // Removendo do Firestore
+      await eventsCollection.doc(eventId).delete();
+
+      // Removendo da interface
+      setState(() {
+        _events[eventDate]?.remove(event);
+        if (_events[eventDate]?.isEmpty ?? true) {
+          _events.remove(eventDate);
+        }
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Evento excluído com sucesso!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      print('Erro ao excluir evento: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao excluir o evento.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   Map<String, List<Map<String, String>>> _groupEventsByMonth() {
     Map<String, List<Map<String, String>>> groupedEvents = {};
 
@@ -132,7 +161,10 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => TelaListaEventos(events: _events),
+                    builder: (context) => TelaListaEventos(
+                      events: _events,
+                      deleteEventCallback: _deleteEvent,
+                    ),
                   ),
                 );
               },
@@ -304,38 +336,15 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
   }
 }
 
-class ContadorItem extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const ContadorItem({
-    required this.label,
-    required this.value,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(label),
-      ],
-    );
-  }
-}
-
 class TelaListaEventos extends StatelessWidget {
   final Map<DateTime, List<Map<String, String>>> events;
+  final Future<void> Function(String, DateTime, Map<String, String>) deleteEventCallback;
 
-  const TelaListaEventos({super.key, required this.events});
+  const TelaListaEventos({
+    super.key,
+    required this.events,
+    required this.deleteEventCallback,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -412,7 +421,7 @@ class TelaListaEventos extends StatelessWidget {
                               color: Colors.red,
                             ),
                             onPressed: () {
-                              // Ação de exclusão do evento
+                              deleteEventCallback(event['id']!, eventDate, event);
                             },
                           ),
                           onTap: () {
@@ -425,6 +434,34 @@ class TelaListaEventos extends StatelessWidget {
                 );
               },
             ),
+    );
+  }
+}
+
+class ContadorItem extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const ContadorItem({
+    required this.label,
+    required this.value,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(label),
+      ],
     );
   }
 }

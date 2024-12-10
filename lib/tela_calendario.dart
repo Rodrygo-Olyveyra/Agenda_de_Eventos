@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_prova/tela_inicial.dart'; // Importando a tela inicial
+import 'package:flutter_application_prova/tela_inicial.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'tela_de_login.dart';
@@ -39,7 +39,6 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     }
 
     try {
-      // Remova o filtro onde 'userId' é igual ao 'user?.uid'
       final snapshot = await eventsCollection.get();
 
       for (var doc in snapshot.docs) {
@@ -51,6 +50,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
           "event": doc['event'],
           "time": doc['time'],
           "description": doc['description'],
+          "docId": doc.id,  // Adiciona o ID do documento
         });
       }
       setState(() {});
@@ -301,7 +301,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => TelaListaEventos(events: _events),
+                    builder: (context) => TelaListaEventos(events: _events, onDeleteEvent: _deleteEvent),
                   ),
                 );
               },
@@ -379,6 +379,24 @@ class _TelaCalendarioState extends State<TelaCalendario> {
             ),
             child: const Text('Adicionar Evento'),
           ),
+          const SizedBox(height: 20),
+          // Exibe os eventos para o dia selecionado
+          if (_events[_selectedDay] != null && _events[_selectedDay]!.isNotEmpty)
+            Column(
+              children: _events[_selectedDay]!.map((event) {
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    title: Text(event['event'] ?? 'Evento sem nome'),
+                    subtitle: Text('Hora: ${event['time']}\nDescrição: ${event['description']}'),
+                  ),
+                );
+              }).toList(),
+            ),
         ],
       ),
     );
@@ -406,8 +424,9 @@ class _TelaCalendarioState extends State<TelaCalendario> {
 
 class TelaListaEventos extends StatelessWidget {
   final Map<DateTime, List<Map<String, String>>> events;
+  final Function(Map<String, String>) onDeleteEvent;
 
-  const TelaListaEventos({super.key, required this.events});
+  const TelaListaEventos({super.key, required this.events, required this.onDeleteEvent});
 
   @override
   Widget build(BuildContext context) {
@@ -484,7 +503,7 @@ class TelaListaEventos extends StatelessWidget {
                               color: Colors.red,
                             ),
                             onPressed: () {
-                              // Ação de exclusão do evento
+                              onDeleteEvent(event); // Chama a função de exclusão
                             },
                           ),
                           onTap: () {
