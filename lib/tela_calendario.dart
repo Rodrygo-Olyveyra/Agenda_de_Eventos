@@ -397,51 +397,29 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                 );
               }).toList(),
             ),
-          const SizedBox(height: 20),
-          _buildEventList(),
         ],
       ),
     );
   }
 
-  // Função para construir a lista de eventos do dia selecionado
-  Widget _buildEventList() {
-    List<Map<String, String>> eventsForDay = _events[_selectedDay] ?? [];
-    eventsForDay.sort((a, b) => a['time']!.compareTo(b['time']!)); // Ordena os eventos por horário
+  // Função para agrupar os eventos por mês
+  Map<String, List<Map<String, String>>> _groupEventsByMonth() {
+    Map<String, List<Map<String, String>>> groupedEvents = {};
 
-    return Expanded(
-      child: ListView.builder(
-        itemCount: eventsForDay.length,
-        itemBuilder: (context, index) {
-          var event = eventsForDay[index];
-          return ListTile(
-            title: Text(event['event'] ?? 'Sem título'),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Hora: ${event['time']}'),
-                const SizedBox(height: 4),
-                Text(
-                  'Descrição: ${event['description']}',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                _showDeleteConfirmationDialog(context, event);
-              },
-            ),
-          );
-        },
-      ),
-    );
+    // Agrupar eventos por mês e ano
+    _events.forEach((date, eventList) {
+      String monthYearKey = DateFormat('MMMM - yyyy', 'pt_BR').format(date); // Usando 'pt_BR' para garantir que os meses sejam em português
+      if (groupedEvents[monthYearKey] == null) {
+        groupedEvents[monthYearKey] = [];
+      }
+      groupedEvents[monthYearKey]!.addAll(eventList); // Adiciona os eventos para o mês
+    });
+
+    // Filtra apenas os meses que têm eventos
+    groupedEvents.removeWhere((key, value) => value.isEmpty); // Remover meses sem eventos
+
+    return groupedEvents;
   }
-
 }
 
 class TelaListaEventos extends StatelessWidget {
@@ -452,18 +430,12 @@ class TelaListaEventos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, String>> allEvents = [];
-    events.forEach((key, value) {
-      allEvents.addAll(value);
-    });
-    allEvents.sort((a, b) => DateFormat("yyyy-MM-dd HH:mm").parse(a['date']! + ' ' + a['time']!).compareTo(DateFormat("yyyy-MM-dd HH:mm").parse(b['date']! + ' ' + b['time']!)));
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de Eventos'),
         backgroundColor: Colors.blueGrey,
       ),
-      body: allEvents.isEmpty
+      body: events.isEmpty
           ? const Center(
               child: Text(
                 'Não há eventos cadastrados.',
@@ -471,9 +443,10 @@ class TelaListaEventos extends StatelessWidget {
               ),
             )
           : ListView.builder(
-              itemCount: allEvents.length,
+              itemCount: events.length,
               itemBuilder: (context, index) {
-                var event = allEvents[index];
+                DateTime eventDate = events.keys.elementAt(index);
+                List<Map<String, String>> eventList = events[eventDate]!;
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   shape: RoundedRectangleBorder(
@@ -539,28 +512,6 @@ class TelaListaEventos extends StatelessWidget {
                         ),
                       );
                     }).toList(),
-                  child: ListTile(
-                    title: Text(event['event'] ?? 'Sem título'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Hora: ${event['time']}'),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Descrição: ${event['description']}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        // Ação de exclusão do evento
-                      },
-                    ),
                   ),
                 );
               },
