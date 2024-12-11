@@ -577,7 +577,9 @@ class TelaListaEventos extends StatelessWidget {
                               );
 
                               if (confirmDelete == true) {
+                                // Exclui o evento do Firebase
                                 await _deleteEventFromFirebase(event);
+                                // Exclui o evento da lista na tela
                                 onDeleteEvent(event);
                               }
                             },
@@ -593,3 +595,4 @@ class TelaListaEventos extends StatelessWidget {
     );
   }
 }
+

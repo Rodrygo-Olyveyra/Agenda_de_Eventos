@@ -345,8 +345,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
 
 class TelaListaEventos extends StatelessWidget {
   final Map<DateTime, List<Map<String, String>>> events;
-  final Future<void> Function(String, DateTime, Map<String, String>)
-      deleteEventCallback;
+  final Future<void> Function(String, DateTime, Map<String, String>) deleteEventCallback;
 
   const TelaListaEventos({
     super.key,
@@ -435,8 +434,8 @@ class TelaListaEventos extends StatelessWidget {
                           trailing: IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
-                              deleteEventCallback(
-                                  event['id']!, eventDate, event);
+                              _showDeleteConfirmationDialog(
+                                  context, event['id']!, eventDate, event);
                             },
                           ),
                         ),
@@ -448,7 +447,37 @@ class TelaListaEventos extends StatelessWidget {
             ),
     );
   }
+
+  void _showDeleteConfirmationDialog(BuildContext context, String eventId,
+      DateTime eventDate, Map<String, String> event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar Exclusão'),
+          content: const Text('Você tem certeza que deseja excluir este evento?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Fecha o AlertDialog
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Fecha o AlertDialog
+                // Chama o callback para excluir o evento
+                deleteEventCallback(eventId, eventDate, event);
+              },
+              child: const Text('Excluir'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
+
 
 class ContadorItem extends StatelessWidget {
   final String label;
