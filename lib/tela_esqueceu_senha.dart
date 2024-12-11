@@ -39,7 +39,7 @@ class _TelaEsqueciSenhaState extends State<TelaEsqueciSenha> {
         ),
       );
 
-      Navigator.pop(context); // Voltar para a tela de login
+      Navigator.pop(context); 
     } on FirebaseAuthException catch (e) {
       String mensagemErro = 'Erro ao enviar o email.';
       if (e.code == 'user-not-found') {
@@ -67,7 +67,7 @@ class _TelaEsqueciSenhaState extends State<TelaEsqueciSenha> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Redefinir Senha'),
-        backgroundColor: const Color.fromARGB(255, 0, 0, 0), // Cor personalizada
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -76,7 +76,7 @@ class _TelaEsqueciSenhaState extends State<TelaEsqueciSenha> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'Eventsy-removebg.png', // Substitua pelo seu caminho de imagem
+                'Eventsy-removebg.png', 
                 width: 250,
                 height: 250,
               ),
@@ -147,7 +147,7 @@ class _TelaEsqueciSenhaState extends State<TelaEsqueciSenha> {
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context); // Voltar para a tela de login
+                  Navigator.pop(context); 
                 },
                 child: const Text(
                   'Voltar ao Login',

@@ -59,10 +59,8 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
   Future<void> _deleteEvent(
       String eventId, DateTime eventDate, Map<String, String> event) async {
     try {
-      // Removendo do Firestore
       await eventsCollection.doc(eventId).delete();
 
-      // Removendo da interface
       setState(() {
         _events[eventDate]?.remove(event);
         if (_events[eventDate]?.isEmpty ?? true) {
@@ -373,7 +371,6 @@ class TelaListaEventos extends StatelessWidget {
                 DateTime eventDate = events.keys.elementAt(index);
                 List<Map<String, String>> eventList = events[eventDate]!;
 
-                // Formatação da data para incluir o dia
                 String formattedDate =
                     DateFormat('d MMMM yyyy', 'pt_BR').format(eventDate);
 
@@ -387,7 +384,7 @@ class TelaListaEventos extends StatelessWidget {
                   elevation: 4,
                   child: ExpansionTile(
                     title: Text(
-                      formattedDate, // Exibe a data com o dia completo
+                      formattedDate, 
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -459,14 +456,13 @@ class TelaListaEventos extends StatelessWidget {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Fecha o AlertDialog
+                Navigator.pop(context); 
               },
               child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Fecha o AlertDialog
-                // Chama o callback para excluir o evento
+                Navigator.pop(context); 
                 deleteEventCallback(eventId, eventDate, event);
               },
               child: const Text('Excluir'),

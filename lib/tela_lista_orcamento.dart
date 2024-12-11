@@ -2,9 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'tela_orçamento.dart';
 
-class TelaListaOrcamento extends StatelessWidget {
+class TelaListaOrcamento extends StatefulWidget {
   const TelaListaOrcamento({super.key});
 
+  @override
+  _TelaListaOrcamentoState createState() => _TelaListaOrcamentoState();
+}
+
+class _TelaListaOrcamentoState extends State<TelaListaOrcamento> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,19 +56,43 @@ class TelaListaOrcamento extends StatelessWidget {
             itemCount: orcamentos.length,
             itemBuilder: (context, index) {
               final orcamento = orcamentos[index];
-              final nome = orcamento['nome'];
-              final nota = orcamento['nota'];
-              final categoria = orcamento['categoria'];
-              final montante = orcamento['montante'].toString();
+              final nome = orcamento['nome'] ?? 'Sem nome';
+              final nota = orcamento['nota'] ?? 'Sem nota';
+              final categoria = orcamento['categoria'] ?? 'Sem categoria';
+              final montante = orcamento['montante'] ?? 0.0;
+
+              final montanteFormatado = montante is num
+                  ? 'R\$ ${montante.toStringAsFixed(2)}'
+                  : 'R\$ 0.00';
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 child: ListTile(
                   title: Text(nome),
-                  subtitle: Text('$nota - Categoria: $categoria\nMontante: R\$ $montante'),
+                  subtitle: Text('Nota: $nota\nCategoria: $categoria\nMontante: $montanteFormatado'),
                   trailing: const Icon(Icons.attach_money),
                   onTap: () {
-
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text(nome),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Nota: $nota'),
+                            Text('Categoria: $categoria'),
+                            Text('Montante: $montanteFormatado'),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Fechar'),
+                          ),
+                        ],
+                      ),
+                    );
                   },
                 ),
               );
@@ -72,11 +101,15 @@ class TelaListaOrcamento extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final resultado = await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const TelaOrcamento()),
           );
+
+          if (resultado == true) {
+            setState(() {}); 
+          }
         },
         child: const Icon(Icons.add),
       ),

@@ -13,8 +13,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
-  final TextEditingController _confirmarSenhaController =
-      TextEditingController();
+  final TextEditingController _confirmarSenhaController = TextEditingController();
   bool _isLoading = false;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -25,10 +24,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
     final String senha = _senhaController.text.trim();
     final String confirmarSenha = _confirmarSenhaController.text.trim();
 
-    if (nome.isEmpty ||
-        email.isEmpty ||
-        senha.isEmpty ||
-        confirmarSenha.isEmpty) {
+    if (nome.isEmpty || email.isEmpty || senha.isEmpty || confirmarSenha.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor, preencha todos os campos.')),
       );
@@ -105,7 +101,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black, // Cor neutra
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -247,6 +243,24 @@ class _TelaCadastroState extends State<TelaCadastro> {
                               ),
                       ],
                     ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 15),
+                    side: const BorderSide(color: Color.fromARGB(255, 25, 0, 255)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: const Text(
+                    'Voltar ao Login',
+                    style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 25, 0, 255)),
                   ),
                 ),
               ],

@@ -10,7 +10,7 @@ class TelaOrcamento extends StatefulWidget {
 }
 
 class _TelaOrcamentoState extends State<TelaOrcamento> {
-  String categoriaSelecionada = 'Traje & Acessórios'; // Categoria inicial padrão
+  String categoriaSelecionada = 'Traje & Acessórios'; 
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController notaController = TextEditingController();
   final TextEditingController montanteController = TextEditingController();

@@ -2,9 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'tela_convidados.dart';
 
-class TelaListaConvidados extends StatelessWidget {
+class TelaListaConvidados extends StatefulWidget {
   const TelaListaConvidados({super.key});
 
+  @override
+  _TelaListaConvidadosState createState() => _TelaListaConvidadosState();
+}
+
+class _TelaListaConvidadosState extends State<TelaListaConvidados> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,7 +20,7 @@ class TelaListaConvidados extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('convidados')
-            .orderBy('criadoEm', descending: true) // Ordena pela data de criação
+            .orderBy('criadoEm', descending: true) 
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -53,8 +58,12 @@ class TelaListaConvidados extends StatelessWidget {
               final convidado = convidados[index];
               final nome = convidado['nome'];
               final sobrenome = convidado['sobrenome'];
+              final nota = convidado['nota'] ?? 'Não informada';
               final tipoConvidado = convidado['tipoConvidado'];
               final genero = convidado['genero'];
+              final telefone = convidado['telefone'] ?? 'Não informado';
+              final email = convidado['email'] ?? 'Não informado';
+              final endereco = convidado['endereco'] ?? 'Não informado';
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -63,8 +72,30 @@ class TelaListaConvidados extends StatelessWidget {
                   subtitle: Text('$tipoConvidado - $genero'),
                   trailing: const Icon(Icons.person),
                   onTap: () {
-                    // Ação ao clicar na lista de convidados
-                    // Você pode adicionar uma página de detalhes, se necessário.
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text('$nome $sobrenome'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Nota: $nota'),
+                            Text('Tipo: $tipoConvidado'),
+                            Text('Gênero: $genero'),
+                            Text('Telefone: $telefone'),
+                            Text('Email: $email'),
+                            Text('Endereço: $endereco'),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Fechar'),
+                          ),
+                        ],
+                      ),
+                    );
                   },
                 ),
               );
@@ -73,11 +104,15 @@ class TelaListaConvidados extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final resultado = await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const TelaConvidados()),
           );
+
+          if (resultado == true) {
+            setState(() {});
+          }
         },
         child: const Icon(Icons.add),
       ),

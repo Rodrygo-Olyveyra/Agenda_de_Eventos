@@ -79,9 +79,8 @@ class _TelaCalendarioState extends State<TelaCalendario> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () async {
-                // Remove o evento do Firestore
                 await _deleteEvent(event);
-                Navigator.pop(context); // Fecha o diálogo
+                Navigator.pop(context); 
               },
               child: const Text('Excluir'),
             ),
@@ -115,7 +114,6 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     }
   }
 
-  // Adiciona um evento ao Firestore
   void _addEvent(String event, String time, String description) async {
     await eventsCollection.add({
       'userId': user?.uid,
@@ -137,7 +135,6 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     });
   }
 
-  // Mostra o diálogo para adicionar um novo evento
   void _showAddEventDialog(BuildContext context) {
     TextEditingController eventController = TextEditingController();
     TextEditingController descriptionController = TextEditingController();
@@ -281,12 +278,12 @@ class _TelaCalendarioState extends State<TelaCalendario> {
               leading: const Icon(Icons.home),
               title: const Text('Início'),
               onTap: () {
-                Navigator.pop(context); // Fecha o drawer
+                Navigator.pop(context); 
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          const TelaInicialPersonalizada()), // Navegar para a tela inicial
+                          const TelaInicialPersonalizada()), 
                 );
               },
             ),
@@ -294,7 +291,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
               leading: const Icon(Icons.calendar_month_outlined),
               title: const Text('Calendário'),
               onTap: () {
-                Navigator.pop(context); // Fecha o drawer
+                Navigator.pop(context); 
               },
             ),
             ListTile(
@@ -372,7 +369,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
             eventLoader: (day) {
               return _events[day] ?? [];
             },
-            locale: 'pt_BR', // Configura a localidade para português
+            locale: 'pt_BR', 
           ),
           const SizedBox(height: 16),
           ElevatedButton(
@@ -385,7 +382,6 @@ class _TelaCalendarioState extends State<TelaCalendario> {
             child: const Text('Adicionar Evento'),
           ),
           const SizedBox(height: 20),
-          // Exibe os eventos para o dia selecionado
           if (_events[_selectedDay] != null &&
               _events[_selectedDay]!.isNotEmpty)
             Column(
@@ -436,8 +432,6 @@ class TelaListaEventos extends StatelessWidget {
     required this.events,
     required this.onDeleteEvent,
   });
-
-  // Função para excluir evento do Firebase
   Future<void> _deleteEventFromFirebase(Map<String, String> event) async {
     try {
       String eventId = event['id'] ?? '';
@@ -458,9 +452,8 @@ class TelaListaEventos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Organiza as datas dos eventos, da mais próxima à mais distante
     List<DateTime> sortedEventDates = events.keys.toList()
-      ..sort((a, b) => a.compareTo(b)); // Ordena as datas de forma crescente
+      ..sort((a, b) => a.compareTo(b)); 
 
     return Scaffold(
       appBar: AppBar(
@@ -484,7 +477,6 @@ class TelaListaEventos extends StatelessWidget {
                 DateTime eventDate = sortedEventDates[index];
                 List<Map<String, String>> eventList = events[eventDate]!;
 
-                // Formatar a data para exibir como "12 dezembro 2024"
                 String formattedDate =
                     DateFormat('d MMMM yyyy', 'pt_BR').format(eventDate);
 
@@ -498,7 +490,7 @@ class TelaListaEventos extends StatelessWidget {
                   shadowColor: Colors.black26,
                   child: ExpansionTile(
                     title: Text(
-                      formattedDate, // Exibe o título como "12 dezembro 2024"
+                      formattedDate, 
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
@@ -577,9 +569,7 @@ class TelaListaEventos extends StatelessWidget {
                               );
 
                               if (confirmDelete == true) {
-                                // Exclui o evento do Firebase
                                 await _deleteEventFromFirebase(event);
-                                // Exclui o evento da lista na tela
                                 onDeleteEvent(event);
                               }
                             },

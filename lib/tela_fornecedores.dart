@@ -72,7 +72,7 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context), // Botão para fechar a tela
+          onPressed: () => Navigator.pop(context), 
         ),
       ),
       body: SingleChildScrollView(

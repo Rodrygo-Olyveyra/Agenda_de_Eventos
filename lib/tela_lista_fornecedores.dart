@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'tela_fornecedores.dart';
 
-class TelaListaFornecedores extends StatelessWidget {
+class TelaListaFornecedores extends StatefulWidget {
   const TelaListaFornecedores({super.key});
 
+  @override
+  _TelaListaFornecedoresState createState() => _TelaListaFornecedoresState();
+}
+
+class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,12 +20,22 @@ class TelaListaFornecedores extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('fornecedores')
-            .orderBy('criadoEm', descending: true) // Ordena por data de criação
+            .orderBy('criadoEm', descending: true) 
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text(
+                'Erro ao carregar os fornecedores',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+              ),
+            );
+          }
+
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
               child: Text(
@@ -42,7 +57,6 @@ class TelaListaFornecedores extends StatelessWidget {
             itemBuilder: (context, index) {
               final fornecedor = fornecedores[index];
 
-              // Obtendo os dados do fornecedor
               final nome = fornecedor['nome'] ?? 'Sem nome';
               final nota = fornecedor['nota'] ?? 'Sem nota';
               final telefone = fornecedor['telefone'] ?? 'Sem telefone';
@@ -51,30 +65,58 @@ class TelaListaFornecedores extends StatelessWidget {
               final endereco = fornecedor['endereco'] ?? 'Sem endereço';
               final montante = fornecedor['montante'] ?? 0.0; // Garantir que seja numérico
 
-              // Verifica se montante é um número válido antes de formatá-lo
               final montanteFormatado = montante is num
                   ? '\$${montante.toStringAsFixed(2)}'
                   : '\$0.00';
 
-              return ListTile(
-                title: Text(nome),
-                subtitle: Text('Nota: $nota\nTelefone: $telefone\nE-mail: $email'),
-                trailing: Text(montanteFormatado),
-                onTap: () {
-                  // Você pode adicionar uma navegação para detalhes ou editar fornecedor, por exemplo.
-                  // Navigator.push(...);
-                },
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: ListTile(
+                  title: Text(nome),
+                  subtitle: Text('Nota: $nota\nTelefone: $telefone\nE-mail: $email'),
+                  trailing: Text(montanteFormatado),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text(nome),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Nota: $nota'),
+                            Text('Telefone: $telefone'),
+                            Text('E-mail: $email'),
+                            Text('Site: $site'),
+                            Text('Endereço: $endereco'),
+                            Text('Montante: $montanteFormatado'),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Fechar'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               );
             },
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final resultado = await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const TelaFornecedor()),
           );
+
+          if (resultado == true) {
+            setState(() {}); 
+          }
         },
         child: const Icon(Icons.add),
       ),

@@ -21,7 +21,7 @@ class _TelaCategoriaState extends State<TelaCategoria> {
     'Alojamento',
   ];
 
-  String categoriaSelecionada = 'Categoria não atribuída'; // Categoria padrão
+  String categoriaSelecionada = 'Categoria não atribuída'; 
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,7 @@ class _TelaCategoriaState extends State<TelaCategoria> {
             ),
             onTap: () {
               setState(() {
-                categoriaSelecionada = categoria; // Atualiza a seleção
+                categoriaSelecionada = categoria; 
               });
             },
           );
@@ -59,8 +59,6 @@ class _TelaCategoriaState extends State<TelaCategoria> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Lógica para adicionar nova categoria
-          // Você pode implementar isso futuramente, como abrir um diálogo para adicionar o nome da nova categoria.
         },
         child: const Icon(Icons.add),
       ),
