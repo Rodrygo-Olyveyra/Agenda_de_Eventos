@@ -12,7 +12,8 @@ class TelaInicialPersonalizada extends StatefulWidget {
   const TelaInicialPersonalizada({super.key});
 
   @override
-  _TelaInicialPersonalizadaState createState() => _TelaInicialPersonalizadaState();
+  _TelaInicialPersonalizadaState createState() =>
+      _TelaInicialPersonalizadaState();
 }
 
 class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
@@ -55,7 +56,8 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
     }
   }
 
-  Future<void> _deleteEvent(String eventId, DateTime eventDate, Map<String, String> event) async {
+  Future<void> _deleteEvent(
+      String eventId, DateTime eventDate, Map<String, String> event) async {
     try {
       // Removendo do Firestore
       await eventsCollection.doc(eventId).delete();
@@ -149,7 +151,8 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const TelaCalendario()),
+                  MaterialPageRoute(
+                      builder: (context) => const TelaCalendario()),
                 );
               },
             ),
@@ -246,7 +249,8 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const TelaListaConvidados()),
+                        MaterialPageRoute(
+                            builder: (context) => const TelaListaConvidados()),
                       );
                     },
                   ),
@@ -256,7 +260,8 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const TelaListaOrcamento()),
+                        MaterialPageRoute(
+                            builder: (context) => const TelaListaOrcamento()),
                       );
                     },
                   ),
@@ -266,7 +271,9 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const TelaListaFornecedores()),
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const TelaListaFornecedores()),
                       );
                     },
                   ),
@@ -338,7 +345,8 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
 
 class TelaListaEventos extends StatelessWidget {
   final Map<DateTime, List<Map<String, String>>> events;
-  final Future<void> Function(String, DateTime, Map<String, String>) deleteEventCallback;
+  final Future<void> Function(String, DateTime, Map<String, String>)
+      deleteEventCallback;
 
   const TelaListaEventos({
     super.key,
@@ -365,8 +373,14 @@ class TelaListaEventos extends StatelessWidget {
               itemBuilder: (context, index) {
                 DateTime eventDate = events.keys.elementAt(index);
                 List<Map<String, String>> eventList = events[eventDate]!;
+
+                // Formatação da data para incluir o dia
+                String formattedDate =
+                    DateFormat('d MMMM yyyy', 'pt_BR').format(eventDate);
+
                 return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                     side: const BorderSide(color: Colors.blueGrey, width: 1),
@@ -374,7 +388,7 @@ class TelaListaEventos extends StatelessWidget {
                   elevation: 4,
                   child: ExpansionTile(
                     title: Text(
-                      DateFormat('MMMM yyyy', 'pt_BR').format(eventDate),
+                      formattedDate, // Exibe a data com o dia completo
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -386,14 +400,17 @@ class TelaListaEventos extends StatelessWidget {
                     ),
                     children: eventList.map((event) {
                       return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
-                          side: const BorderSide(color: Colors.blueGrey, width: 0.5),
+                          side: const BorderSide(
+                              color: Colors.blueGrey, width: 0.5),
                         ),
                         elevation: 2,
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 16),
                           title: Text(
                             event['event'] ?? 'Evento sem nome',
                             style: const TextStyle(
@@ -416,17 +433,12 @@ class TelaListaEventos extends StatelessWidget {
                             ],
                           ),
                           trailing: IconButton(
-                            icon: const Icon(
-                              Icons.delete,
-                              color: Colors.red,
-                            ),
+                            icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
-                              deleteEventCallback(event['id']!, eventDate, event);
+                              deleteEventCallback(
+                                  event['id']!, eventDate, event);
                             },
                           ),
-                          onTap: () {
-                            // Aqui pode adicionar ação para ver mais detalhes
-                          },
                         ),
                       );
                     }).toList(),
@@ -442,11 +454,7 @@ class ContadorItem extends StatelessWidget {
   final String label;
   final String value;
 
-  const ContadorItem({
-    required this.label,
-    required this.value,
-    super.key,
-  });
+  const ContadorItem({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -455,11 +463,10 @@ class ContadorItem extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 4),
         Text(label),
       ],
     );

@@ -50,7 +50,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
           "event": doc['event'],
           "time": doc['time'],
           "description": doc['description'],
-          "docId": doc.id,  // Adiciona o ID do documento
+          "docId": doc.id, // Adiciona o ID do documento
         });
       }
       setState(() {});
@@ -60,13 +60,15 @@ class _TelaCalendarioState extends State<TelaCalendario> {
   }
 
   // Exibe o diálogo de confirmação para deletar um evento
-  void _showDeleteConfirmationDialog(BuildContext context, Map<String, String> event) {
+  void _showDeleteConfirmationDialog(
+      BuildContext context, Map<String, String> event) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirmar Exclusão'),
-          content: const Text('Você tem certeza que deseja excluir este evento?'),
+          content:
+              const Text('Você tem certeza que deseja excluir este evento?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -89,7 +91,6 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     );
   }
 
-  // Deleta o evento do Firestore
   Future<void> _deleteEvent(Map<String, String> event) async {
     try {
       final snapshot = await eventsCollection
@@ -194,7 +195,8 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                       }
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 16),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(8.0),
@@ -282,7 +284,9 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                 Navigator.pop(context); // Fecha o drawer
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const TelaInicialPersonalizada()), // Navegar para a tela inicial
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          const TelaInicialPersonalizada()), // Navegar para a tela inicial
                 );
               },
             ),
@@ -301,7 +305,8 @@ class _TelaCalendarioState extends State<TelaCalendario> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => TelaListaEventos(events: _events, onDeleteEvent: _deleteEvent),
+                    builder: (context) => TelaListaEventos(
+                        events: _events, onDeleteEvent: _deleteEvent),
                   ),
                 );
               },
@@ -381,18 +386,21 @@ class _TelaCalendarioState extends State<TelaCalendario> {
           ),
           const SizedBox(height: 20),
           // Exibe os eventos para o dia selecionado
-          if (_events[_selectedDay] != null && _events[_selectedDay]!.isNotEmpty)
+          if (_events[_selectedDay] != null &&
+              _events[_selectedDay]!.isNotEmpty)
             Column(
               children: _events[_selectedDay]!.map((event) {
                 return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   elevation: 4,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: ListTile(
                     title: Text(event['event'] ?? 'Evento sem nome'),
-                    subtitle: Text('Hora: ${event['time']}\nDescrição: ${event['description']}'),
+                    subtitle: Text(
+                        'Hora: ${event['time']}\nDescrição: ${event['description']}'),
                   ),
                 );
               }).toList(),
@@ -402,21 +410,18 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     );
   }
 
-  // Função para agrupar os eventos por mês
   Map<String, List<Map<String, String>>> _groupEventsByMonth() {
     Map<String, List<Map<String, String>>> groupedEvents = {};
 
-    // Agrupar eventos por mês e ano
     _events.forEach((date, eventList) {
-      String monthYearKey = DateFormat('MMMM - yyyy', 'pt_BR').format(date); // Usando 'pt_BR' para garantir que os meses sejam em português
+      String monthYearKey = DateFormat('MMMM - yyyy', 'pt_BR').format(date);
       if (groupedEvents[monthYearKey] == null) {
         groupedEvents[monthYearKey] = [];
       }
-      groupedEvents[monthYearKey]!.addAll(eventList); // Adiciona os eventos para o mês
+      groupedEvents[monthYearKey]!.addAll(eventList);
     });
 
-    // Filtra apenas os meses que têm eventos
-    groupedEvents.removeWhere((key, value) => value.isEmpty); // Remover meses sem eventos
+    groupedEvents.removeWhere((key, value) => value.isEmpty);
 
     return groupedEvents;
   }
@@ -426,24 +431,51 @@ class TelaListaEventos extends StatelessWidget {
   final Map<DateTime, List<Map<String, String>>> events;
   final Function(Map<String, String>) onDeleteEvent;
 
-  const TelaListaEventos({super.key, required this.events, required this.onDeleteEvent});
+  const TelaListaEventos({
+    super.key,
+    required this.events,
+    required this.onDeleteEvent,
+  });
+
+  // Função para excluir evento do Firebase
+  Future<void> _deleteEventFromFirebase(Map<String, String> event) async {
+    try {
+      String eventId = event['id'] ?? '';
+
+      if (eventId.isNotEmpty) {
+        await FirebaseFirestore.instance
+            .collection('events')
+            .doc(eventId)
+            .delete();
+        print("Evento excluído com sucesso.");
+      } else {
+        print("ID do evento não encontrado.");
+      }
+    } catch (e) {
+      print("Erro ao excluir evento do Firebase: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Organize the dates from the nearest to the furthest
+    // Organiza as datas dos eventos, da mais próxima à mais distante
     List<DateTime> sortedEventDates = events.keys.toList()
       ..sort((a, b) => a.compareTo(b)); // Ordena as datas de forma crescente
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de Eventos'),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.teal.shade600,
+        elevation: 4,
       ),
       body: events.isEmpty
           ? const Center(
               child: Text(
                 'Não há eventos cadastrados.',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black54),
               ),
             )
           : ListView.builder(
@@ -452,53 +484,62 @@ class TelaListaEventos extends StatelessWidget {
                 DateTime eventDate = sortedEventDates[index];
                 List<Map<String, String>> eventList = events[eventDate]!;
 
+                // Formatar a data para exibir como "12 dezembro 2024"
+                String formattedDate =
+                    DateFormat('d MMMM yyyy', 'pt_BR').format(eventDate);
+
                 return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Colors.blueGrey, width: 1),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  elevation: 4,
+                  elevation: 8,
+                  shadowColor: Colors.black26,
                   child: ExpansionTile(
                     title: Text(
-                      DateFormat('MMMM yyyy', 'pt_BR').format(eventDate),
+                      formattedDate, // Exibe o título como "12 dezembro 2024"
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        fontSize: 20,
+                        color: Colors.teal,
                       ),
                     ),
                     leading: const Icon(
                       Icons.calendar_today,
-                      color: Colors.blueGrey,
+                      color: Colors.teal,
                     ),
+                    childrenPadding: const EdgeInsets.all(8),
                     children: eventList.map((event) {
                       return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 6, horizontal: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          side: const BorderSide(color: Colors.blueGrey, width: 0.5),
+                          borderRadius: BorderRadius.circular(12),
+                          side:
+                              const BorderSide(color: Colors.teal, width: 0.5),
                         ),
-                        elevation: 2,
+                        elevation: 4,
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 16),
                           title: Text(
                             event['event'] ?? 'Evento sem nome',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: 18,
                             ),
                           ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Hora: ${event['time']}'),
+                              Text('Hora: ${event['time']}',
+                                  style: const TextStyle(fontSize: 14)),
                               const SizedBox(height: 4),
                               Text(
                                 'Descrição: ${event['description']}',
                                 style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
+                                    color: Colors.grey[700], fontSize: 14),
                               ),
                             ],
                           ),
@@ -507,13 +548,41 @@ class TelaListaEventos extends StatelessWidget {
                               Icons.delete,
                               color: Colors.red,
                             ),
-                            onPressed: () {
-                              onDeleteEvent(event); // Chama a função de exclusão
+                            onPressed: () async {
+                              bool? confirmDelete = await showDialog<bool>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Excluir Evento'),
+                                    content: const Text(
+                                        'Você tem certeza de que deseja excluir este evento?'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop(false);
+                                        },
+                                        child: const Text('Cancelar'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop(true);
+                                        },
+                                        child: const Text('Excluir',
+                                            style:
+                                                TextStyle(color: Colors.red)),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              if (confirmDelete == true) {
+                                await _deleteEventFromFirebase(event);
+                                onDeleteEvent(event);
+                              }
                             },
                           ),
-                          onTap: () {
-                            // Aqui pode adicionar ação para ver mais detalhes
-                          },
+                          onTap: () {},
                         ),
                       );
                     }).toList(),
