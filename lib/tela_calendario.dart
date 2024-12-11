@@ -430,6 +430,10 @@ class TelaListaEventos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Organize the dates from the nearest to the furthest
+    List<DateTime> sortedEventDates = events.keys.toList()
+      ..sort((a, b) => a.compareTo(b)); // Ordena as datas de forma crescente
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de Eventos'),
@@ -443,10 +447,11 @@ class TelaListaEventos extends StatelessWidget {
               ),
             )
           : ListView.builder(
-              itemCount: events.length,
+              itemCount: sortedEventDates.length,
               itemBuilder: (context, index) {
-                DateTime eventDate = events.keys.elementAt(index);
+                DateTime eventDate = sortedEventDates[index];
                 List<Map<String, String>> eventList = events[eventDate]!;
+
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   shape: RoundedRectangleBorder(
