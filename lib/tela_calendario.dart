@@ -90,13 +90,15 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     );
   }
 
-  Future<void> _deleteEvent(Map<String, String> event) async {
+  // Atualizando a função que exclui o evento
+Future<void> _deleteEvent(Map<String, String> event) async {
   try {
-    // Remover o filtro de data (_selectedDay)
+    // Remover o filtro de data (_selectedDay) e usar o 'docId'
     final snapshot = await eventsCollection
         .where('userId', isEqualTo: user?.uid)
         .where('event', isEqualTo: event['event'])
         .where('time', isEqualTo: event['time'])
+        .where('description', isEqualTo: event['description'])
         .get();
 
     for (var doc in snapshot.docs) {
@@ -271,7 +273,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Calendário'),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.teal,
       ),
       drawer: Drawer(
         child: ListView(
@@ -558,41 +560,47 @@ class TelaListaEventos extends StatelessWidget {
                             ],
                           ),
                           trailing: IconButton(
-                            icon: const Icon(
-                              Icons.delete,
-                              color: Colors.red,
-                            ),
-                            onPressed: () async {
-                                bool? confirmDelete = await showDialog<bool>(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text('Excluir Evento'),
-                                      content: const Text('Você tem certeza de que deseja excluir este evento?'),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop(false);
-                                          },
-                                          child: const Text('Cancelar'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop(true);
-                                          },
-                                          child: const Text('Excluir',
-                                              style: TextStyle(color: Colors.red)),
-                                        ),
-                                      ],
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () async {
+                                  bool? confirmDelete = await showDialog<bool>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text('Excluir Evento'),
+                                        content: const Text('Você tem certeza de que deseja excluir este evento?'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                            child: const Text('Cancelar'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop(true);
+                                            },
+                                            child: const Text('Excluir',
+                                                style: TextStyle(color: Colors.red)),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                  if (confirmDelete == true) {
+                                    await _deleteEventFromFirebase(event); // Exclui do Firebase
+                                    onDeleteEvent(event); // Atualiza a UI no calendário
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Evento excluído com sucesso!'),
+                                        backgroundColor: Colors.green,
+                                      ),
                                     );
-                                  },
-                                );
-                                if (confirmDelete == true) {
-                                  await _deleteEventFromFirebase(event); // Exclui do Firebase
-                                  onDeleteEvent(event); // Atualiza a UI no calendário
-                                }
-                              },
-                          ),
+                                  }
+                                },
+                              ),
                           onTap: () {},
                         ),
                       );

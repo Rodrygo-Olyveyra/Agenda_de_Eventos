@@ -72,6 +72,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
         const SnackBar(
           content: Text('Evento excluído com sucesso!'),
           duration: Duration(seconds: 2),
+          backgroundColor: Colors.green,
         ),
       );
     } catch (e) {
@@ -447,7 +448,6 @@ class TelaListaEventos extends StatelessWidget {
             ),
     );
   }
-
 
   void _showDeleteConfirmationDialog(BuildContext context, String eventId,
       DateTime eventDate, Map<String, String> event) {

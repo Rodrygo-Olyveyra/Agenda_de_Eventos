@@ -41,7 +41,8 @@ class _TelaLoginState extends State<TelaLogin> {
 
       if (userCredential.user != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login realizado com sucesso!')),
+          const SnackBar(content: Text('Login realizado com sucesso!'),
+          backgroundColor: Colors.green),
         );
         Navigator.pushReplacement(
           context,
