@@ -284,6 +284,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
     );
   }
 
+
   void _confirmarLogout(BuildContext context) {
     showDialog(
       context: context,
@@ -314,6 +315,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
     );
   }
 
+
   Widget _buildMenuItem({
     required IconData icon,
     required String label,
@@ -341,6 +343,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
   }
 }
 
+
 class TelaListaEventos extends StatelessWidget {
   final Map<DateTime, List<Map<String, String>>> events;
   final Future<void> Function(String, DateTime, Map<String, String>) deleteEventCallback;
@@ -356,7 +359,7 @@ class TelaListaEventos extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de Eventos'),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.teal.shade600,
       ),
       body: events.isEmpty
           ? const Center(
@@ -392,7 +395,7 @@ class TelaListaEventos extends StatelessWidget {
                     ),
                     leading: const Icon(
                       Icons.calendar_today,
-                      color: Colors.blueGrey,
+                      color: Colors.teal,
                     ),
                     children: eventList.map((event) {
                       return Card(
@@ -401,7 +404,7 @@ class TelaListaEventos extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                           side: const BorderSide(
-                              color: Colors.blueGrey, width: 0.5),
+                              color: Colors.teal, width: 0.5),
                         ),
                         elevation: 2,
                         child: ListTile(
@@ -444,6 +447,7 @@ class TelaListaEventos extends StatelessWidget {
             ),
     );
   }
+
 
   void _showDeleteConfirmationDialog(BuildContext context, String eventId,
       DateTime eventDate, Map<String, String> event) {

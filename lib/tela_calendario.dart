@@ -91,28 +91,48 @@ class _TelaCalendarioState extends State<TelaCalendario> {
   }
 
   Future<void> _deleteEvent(Map<String, String> event) async {
-    try {
-      final snapshot = await eventsCollection
-          .where('userId', isEqualTo: user?.uid)
-          .where('date', isEqualTo: _selectedDay.toIso8601String())
-          .where('event', isEqualTo: event['event'])
-          .where('time', isEqualTo: event['time'])
-          .get();
+  try {
+    // Remover o filtro de data (_selectedDay)
+    final snapshot = await eventsCollection
+        .where('userId', isEqualTo: user?.uid)
+        .where('event', isEqualTo: event['event'])
+        .where('time', isEqualTo: event['time'])
+        .get();
 
-      for (var doc in snapshot.docs) {
-        await doc.reference.delete();
-      }
+    for (var doc in snapshot.docs) {
+      await doc.reference.delete();
+    }
 
-      setState(() {
-        _events[_selectedDay]?.remove(event);
-        if (_events[_selectedDay]?.isEmpty ?? false) {
-          _events.remove(_selectedDay);
+    setState(() {
+      // Atualiza a lista de eventos removendo o evento excluído
+      _events.forEach((date, eventList) {
+        eventList.removeWhere((e) =>
+            e['event'] == event['event'] &&
+            e['time'] == event['time'] &&
+            e['description'] == event['description']);
+        if (eventList.isEmpty) {
+          _events.remove(date); // Remove a data se não tiver mais eventos
         }
       });
-    } catch (e) {
-      print('Erro ao excluir evento: $e');
-    }
+    });
+
+    // Exibe uma mensagem de sucesso
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Evento "${event['event']}" excluído com sucesso!'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  } catch (e) {
+    print('Erro ao excluir evento: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Erro ao excluir o evento.'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
 
   void _addEvent(String event, String time, String description) async {
     await eventsCollection.add({
@@ -432,23 +452,25 @@ class TelaListaEventos extends StatelessWidget {
     required this.events,
     required this.onDeleteEvent,
   });
-  Future<void> _deleteEventFromFirebase(Map<String, String> event) async {
-    try {
-      String eventId = event['id'] ?? '';
 
-      if (eventId.isNotEmpty) {
-        await FirebaseFirestore.instance
-            .collection('events')
-            .doc(eventId)
-            .delete();
-        print("Evento excluído com sucesso.");
-      } else {
-        print("ID do evento não encontrado.");
-      }
-    } catch (e) {
-      print("Erro ao excluir evento do Firebase: $e");
+
+  Future<void> _deleteEventFromFirebase(Map<String, String> event) async {
+  try {
+    String eventId = event['docId'] ?? ''; // Use 'docId' para localizar o evento correto
+
+    if (eventId.isNotEmpty) {
+      await FirebaseFirestore.instance
+          .collection('events')
+          .doc(eventId)
+          .delete();
+      print("Evento excluído com sucesso.");
+    } else {
+      print("ID do evento não encontrado.");
     }
+  } catch (e) {
+    print("Erro ao excluir evento do Firebase: $e");
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -541,38 +563,35 @@ class TelaListaEventos extends StatelessWidget {
                               color: Colors.red,
                             ),
                             onPressed: () async {
-                              bool? confirmDelete = await showDialog<bool>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('Excluir Evento'),
-                                    content: const Text(
-                                        'Você tem certeza de que deseja excluir este evento?'),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
-                                        child: const Text('Cancelar'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop(true);
-                                        },
-                                        child: const Text('Excluir',
-                                            style:
-                                                TextStyle(color: Colors.red)),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-
-                              if (confirmDelete == true) {
-                                await _deleteEventFromFirebase(event);
-                                onDeleteEvent(event);
-                              }
-                            },
+                                bool? confirmDelete = await showDialog<bool>(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('Excluir Evento'),
+                                      content: const Text('Você tem certeza de que deseja excluir este evento?'),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                          child: const Text('Cancelar'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop(true);
+                                          },
+                                          child: const Text('Excluir',
+                                              style: TextStyle(color: Colors.red)),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                                if (confirmDelete == true) {
+                                  await _deleteEventFromFirebase(event); // Exclui do Firebase
+                                  onDeleteEvent(event); // Atualiza a UI no calendário
+                                }
+                              },
                           ),
                           onTap: () {},
                         ),
@@ -585,4 +604,3 @@ class TelaListaEventos extends StatelessWidget {
     );
   }
 }
-
