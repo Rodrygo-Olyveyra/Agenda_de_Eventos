@@ -31,7 +31,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     _loadEvents();
   }
 
-  // Carrega os eventos do Firestore
+
   void _loadEvents() async {
     if (user == null) {
       print('Usuário não autenticado!');
@@ -50,7 +50,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
           "event": doc['event'],
           "time": doc['time'],
           "description": doc['description'],
-          "docId": doc.id, // Adiciona o ID do documento
+          "docId": doc.id,
         });
       }
       setState(() {});
@@ -59,7 +59,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     }
   }
 
-  // Exibe o diálogo de confirmação para deletar um evento
+
   void _showDeleteConfirmationDialog(
       BuildContext context, Map<String, String> event) {
     showDialog(
@@ -72,7 +72,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Fecha o diálogo
+                Navigator.pop(context);
               },
               child: const Text('Cancelar'),
             ),
@@ -90,10 +90,8 @@ class _TelaCalendarioState extends State<TelaCalendario> {
     );
   }
 
-  // Atualizando a função que exclui o evento
 Future<void> _deleteEvent(Map<String, String> event) async {
   try {
-    // Remover o filtro de data (_selectedDay) e usar o 'docId'
     final snapshot = await eventsCollection
         .where('userId', isEqualTo: user?.uid)
         .where('event', isEqualTo: event['event'])
@@ -106,19 +104,18 @@ Future<void> _deleteEvent(Map<String, String> event) async {
     }
 
     setState(() {
-      // Atualiza a lista de eventos removendo o evento excluído
       _events.forEach((date, eventList) {
         eventList.removeWhere((e) =>
             e['event'] == event['event'] &&
             e['time'] == event['time'] &&
             e['description'] == event['description']);
         if (eventList.isEmpty) {
-          _events.remove(date); // Remove a data se não tiver mais eventos
+          _events.remove(date);
         }
       });
     });
 
-    // Exibe uma mensagem de sucesso
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Evento "${event['event']}" excluído com sucesso!'),
@@ -458,7 +455,7 @@ class TelaListaEventos extends StatelessWidget {
 
   Future<void> _deleteEventFromFirebase(Map<String, String> event) async {
   try {
-    String eventId = event['docId'] ?? ''; // Use 'docId' para localizar o evento correto
+    String eventId = event['docId'] ?? '';
 
     if (eventId.isNotEmpty) {
       await FirebaseFirestore.instance
@@ -590,8 +587,8 @@ class TelaListaEventos extends StatelessWidget {
                                     },
                                   );
                                   if (confirmDelete == true) {
-                                    await _deleteEventFromFirebase(event); // Exclui do Firebase
-                                    onDeleteEvent(event); // Atualiza a UI no calendário
+                                    await _deleteEventFromFirebase(event);
+                                    onDeleteEvent(event);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Evento excluído com sucesso!'),
