@@ -104,91 +104,133 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    var scaffold = Scaffold(
       appBar: AppBar(
         title: const Text('Inicial'),
         centerTitle: true,
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color(0xFF32CD99),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'Menu',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Bem-vindo, Usuário!',
-                    style: TextStyle(
-                      color: Colors.white70,
-                    ),
-                  ),
-                ],
+drawer: Drawer(
+  child: StreamBuilder<User?>(
+    stream: FirebaseAuth.instance.authStateChanges(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      }
+      final user = snapshot.data;
+      return ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          UserAccountsDrawerHeader(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF32CD99), Color(0xFF20B2AA)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Início'),
-              onTap: () {
-                Navigator.pop(context);
-              },
+            accountName: Text(
+              user != null ? 'Bem-vindo, ${user.displayName ?? "Usuário"}' : 'Usuário não autenticado',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            ListTile(
-              leading: const Icon(Icons.calendar_month_outlined),
-              title: const Text('Calendário'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const TelaCalendario()),
-                );
-              },
+            accountEmail: Text(
+              user?.email ?? 'Sem e-mail cadastrado',
+              style: const TextStyle(fontSize: 14),
             ),
-            ListTile(
-              leading: const Icon(Icons.list),
-              title: const Text('Lista de Eventos'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TelaListaEventos(
-                      events: _events,
-                      deleteEventCallback: _deleteEvent,
-                    ),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Text(
+                user?.displayName?.substring(0, 1).toUpperCase() ?? '',
+                style: const TextStyle(fontSize: 40, color: Color(0xFF32CD99)),
+              ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home, color: Colors.teal),
+            title: const Text('Início', style: TextStyle(fontSize: 16)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => TelaInicialPersonalizada()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.event, color: Colors.teal),
+            title: const Text('Lista de Eventos', style: TextStyle(fontSize: 16)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TelaListaEventos(
+                    events: _events,
+                    onDeleteEvent: (event) {
+                      setState(() {
+                        _events[event['date']]?.remove(event);
+                        if (_events[event['date']]?.isEmpty == true) {
+                          _events.remove(event['date']);
+                        }
+                      });
+                    },
                   ),
-                );
-              },
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.calendar_today, color: Colors.teal),
+            title: const Text('Calendário', style: TextStyle(fontSize: 16)),
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => TelaCalendario()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings, color: Colors.teal),
+            title: const Text('Configurações', style: TextStyle(fontSize: 16)),
+            onTap: () {
+              // Ação para configurações
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Sair', style: TextStyle(fontSize: 16)),
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => TelaLogin()),
+              );
+            },
+          ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Text(
+              'Outras opções',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Configurações'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.exit_to_app),
-              title: const Text('Sair'),
-              onTap: () {
-                _confirmarLogout(context);
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Padding(
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline, color: Colors.blue),
+            title: const Text('Sobre o App', style: TextStyle(fontSize: 16)),
+            onTap: () {
+              // Ação para "Sobre o App"
+            },
+          ),
+        ],
+      );
+    },
+  ),
+),
+  body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,9 +325,8 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
         ),
       ),
     );
+    return scaffold;
   }
-
-
   void _confirmarLogout(BuildContext context) {
     showDialog(
       context: context,
@@ -347,16 +388,173 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
 
 class TelaListaEventos extends StatelessWidget {
   final Map<DateTime, List<Map<String, String>>> events;
-  final Future<void> Function(String, DateTime, Map<String, String>) deleteEventCallback;
+  final Function(Map<String, String>) onDeleteEvent;
 
   const TelaListaEventos({
     super.key,
     required this.events,
-    required this.deleteEventCallback,
+    required this.onDeleteEvent,
   });
+
+
+  Future<void> _deleteEventFromFirebase(Map<String, String> event) async {
+  try {
+    String eventId = event['docId'] ?? '';
+
+    if (eventId.isNotEmpty) {
+      await FirebaseFirestore.instance
+          .collection('events')
+          .doc(eventId)
+          .delete();
+      print("Evento excluído com sucesso.");
+    } else {
+      print("ID do evento não encontrado.");
+    }
+  } catch (e) {
+    print("Erro ao excluir evento do Firebase: $e");
+  }
+}
 
   @override
   Widget build(BuildContext context) {
+    List<DateTime> sortedEventDates = events.keys.toList()
+      ..sort((a, b) => a.compareTo(b)); 
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Lista de Eventos'),
+        backgroundColor: Colors.teal.shade600,
+        elevation: 4,
+      ),
+      body: events.isEmpty
+          ? const Center(
+              child: Text(
+                'Não há eventos cadastrados.',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black54),
+              ),
+            )
+          : ListView.builder(
+              itemCount: sortedEventDates.length,
+              itemBuilder: (context, index) {
+                DateTime eventDate = sortedEventDates[index];
+                List<Map<String, String>> eventList = events[eventDate]!;
+
+                String formattedDate =
+                    DateFormat('d MMMM yyyy', 'pt_BR').format(eventDate);
+
+                return Card(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 8,
+                  shadowColor: Colors.black26,
+                  child: ExpansionTile(
+                    title: Text(
+                      formattedDate, 
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.teal,
+                      ),
+                    ),
+                    leading: const Icon(
+                      Icons.calendar_today,
+                      color: Colors.teal,
+                    ),
+                    childrenPadding: const EdgeInsets.all(8),
+                    children: eventList.map((event) {
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 6, horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side:
+                              const BorderSide(color: Colors.teal, width: 0.5),
+                        ),
+                        elevation: 4,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 16),
+                          title: Text(
+                            event['event'] ?? 'Evento sem nome',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Hora: ${event['time']}',
+                                  style: const TextStyle(fontSize: 14)),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Descrição: ${event['description']}',
+                                style: TextStyle(
+                                    color: Colors.grey[700], fontSize: 14),
+                              ),
+                            ],
+                          ),
+                          trailing: IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () async {
+                                  bool? confirmDelete = await showDialog<bool>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text('Excluir Evento'),
+                                        content: const Text('Você tem certeza de que deseja excluir este evento?'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                            child: const Text('Cancelar'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop(true);
+                                            },
+                                            child: const Text('Excluir',
+                                                style: TextStyle(color: Colors.red)),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                  if (confirmDelete == true) {
+                                    await _deleteEventFromFirebase(event);
+                                    onDeleteEvent(event);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Evento excluído com sucesso!'),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                          onTap: () {},
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+    );
+  }
+}
+  @override
+  Widget build(BuildContext context, dynamic events) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de Eventos'),
@@ -448,7 +646,6 @@ class TelaListaEventos extends StatelessWidget {
             ),
     );
   }
-
   void _showDeleteConfirmationDialog(BuildContext context, String eventId,
       DateTime eventDate, Map<String, String> event) {
     showDialog(
@@ -476,9 +673,9 @@ class TelaListaEventos extends StatelessWidget {
       },
     );
   }
-}
-
-
+  
+  void deleteEventCallback(String eventId, DateTime eventDate, Map<String, String> event) {
+  }
 class ContadorItem extends StatelessWidget {
   final String label;
   final String value;

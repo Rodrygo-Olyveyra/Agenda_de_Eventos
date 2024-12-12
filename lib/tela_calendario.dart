@@ -264,7 +264,6 @@ Future<void> _deleteEvent(Map<String, String> event) async {
       },
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -272,106 +271,127 @@ Future<void> _deleteEvent(Map<String, String> event) async {
         title: const Text('Calendário'),
         backgroundColor: Colors.teal,
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Color(0xFF32CD99),
-              ),
-              child: Column(
-                children: [
-                  const Text(
-                    'Menu',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                    ),
-                  ),
-                  Text('Bem-vindo, ${user?.displayName ?? 'Usuário'}!'),
-                ],
+drawer: Drawer(
+  child: StreamBuilder<User?>(
+    stream: FirebaseAuth.instance.authStateChanges(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      }
+      final user = snapshot.data;
+      return ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          UserAccountsDrawerHeader(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF32CD99), Color(0xFF20B2AA)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Início'),
-              onTap: () {
-                Navigator.pop(context); 
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          const TelaInicialPersonalizada()), 
-                );
-              },
+            accountName: Text(
+              user != null ? 'Bem-vindo, ${user.displayName ?? "Usuário"}' : 'Usuário não autenticado',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            ListTile(
-              leading: const Icon(Icons.calendar_month_outlined),
-              title: const Text('Calendário'),
-              onTap: () {
-                Navigator.pop(context); 
-              },
+            accountEmail: Text(
+              user?.email ?? 'Sem e-mail cadastrado',
+              style: const TextStyle(fontSize: 14),
             ),
-            ListTile(
-              leading: const Icon(Icons.list),
-              title: const Text('Lista de Eventos'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TelaListaEventos(
-                        events: _events, onDeleteEvent: _deleteEvent),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Text(
+                user?.displayName?.substring(0, 1).toUpperCase() ?? '',
+                style: const TextStyle(fontSize: 40, color: Color(0xFF32CD99)),
+              ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home, color: Colors.teal),
+            title: const Text('Início', style: TextStyle(fontSize: 16)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => TelaInicialPersonalizada()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.event, color: Colors.teal),
+            title: const Text('Lista de Eventos', style: TextStyle(fontSize: 16)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TelaListaEventos(
+                    events: _events,
+                    onDeleteEvent: (event) {
+                      setState(() {
+                        _events[event['date']]?.remove(event);
+                        if (_events[event['date']]?.isEmpty == true) {
+                          _events.remove(event['date']);
+                        }
+                      });
+                    },
                   ),
-                );
-              },
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.calendar_today, color: Colors.teal),
+            title: const Text('Calendário', style: TextStyle(fontSize: 16)),
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => TelaCalendario()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings, color: Colors.teal),
+            title: const Text('Configurações', style: TextStyle(fontSize: 16)),
+            onTap: () {
+              // Ação para configurações
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Sair', style: TextStyle(fontSize: 16)),
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => TelaLogin()),
+              );
+            },
+          ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Text(
+              'Outras opções',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Configurações'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.exit_to_app),
-              title: const Text('Sair'),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Confirmar Logout'),
-                      content: const Text('Você tem certeza que deseja sair?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Cancelar'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            await FirebaseAuth.instance.signOut();
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const TelaLogin(),
-                              ),
-                            );
-                          },
-                          child: const Text('Sair'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline, color: Colors.blue),
+            title: const Text('Sobre o App', style: TextStyle(fontSize: 16)),
+            onTap: () {
+              // Ação para "Sobre o App"
+            },
+          ),
+        ],
+      );
+    },
+  ),
+),
       body: Column(
         children: [
           TableCalendar(
