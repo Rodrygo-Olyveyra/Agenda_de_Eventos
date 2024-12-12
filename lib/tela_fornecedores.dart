@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'tela_categoria.dart';
+import 'telaeventos.dart';// Importar a tela de seleção de evento
 
 class TelaFornecedor extends StatefulWidget {
   const TelaFornecedor({super.key});
@@ -11,6 +12,7 @@ class TelaFornecedor extends StatefulWidget {
 
 class _TelaFornecedorState extends State<TelaFornecedor> {
   String categoriaSelecionada = 'Traje & Acessórios';
+  String eventoSelecionado = ''; // Variável para armazenar o evento selecionado
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController notaController = TextEditingController();
   final TextEditingController telefoneController = TextEditingController();
@@ -20,7 +22,7 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
   final TextEditingController montanteController = TextEditingController();
 
   Future<void> _adicionarFornecedor() async {
-    if (nomeController.text.isEmpty || montanteController.text.isEmpty) {
+    if (nomeController.text.isEmpty || montanteController.text.isEmpty || eventoSelecionado.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Preencha todos os campos obrigatórios!')),
       );
@@ -34,6 +36,7 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
         'nome': nomeController.text,
         'nota': notaController.text,
         'categoria': categoriaSelecionada,
+        'evento': eventoSelecionado, // Adicionando o eventoId
         'telefone': telefoneController.text,
         'email': emailController.text,
         'site': siteController.text,
@@ -55,8 +58,9 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
 
       setState(() {
         categoriaSelecionada = 'Traje & Acessórios';
+        eventoSelecionado = ''; // Limpar a seleção de evento
       });
-      Navigator.pop(context); 
+      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao adicionar fornecedor: $e')),
@@ -72,13 +76,14 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context), 
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Campo Nome
             TextField(
               controller: nomeController,
               decoration: const InputDecoration(
@@ -87,6 +92,8 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Campo Nota
             TextField(
               controller: notaController,
               decoration: const InputDecoration(
@@ -95,6 +102,8 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Seleção de Categoria
             ListTile(
               leading: const Icon(Icons.category),
               title: const Text('Categoria'),
@@ -116,6 +125,8 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
               },
             ),
             const SizedBox(height: 16),
+
+            // Campo Telefone
             TextField(
               controller: telefoneController,
               decoration: const InputDecoration(
@@ -124,6 +135,8 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Campo E-mail
             TextField(
               controller: emailController,
               decoration: const InputDecoration(
@@ -132,6 +145,8 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Campo Site
             TextField(
               controller: siteController,
               decoration: const InputDecoration(
@@ -140,6 +155,8 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Campo Endereço
             TextField(
               controller: enderecoController,
               decoration: const InputDecoration(
@@ -148,6 +165,8 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Campo Montante
             TextField(
               controller: montanteController,
               decoration: const InputDecoration(
@@ -157,6 +176,31 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
+
+            // Seleção de Evento
+            ListTile(
+              leading: const Icon(Icons.event),
+              title: const Text('Evento'),
+              subtitle: Text(eventoSelecionado.isNotEmpty ? eventoSelecionado : 'Nenhum evento selecionado'),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () async {
+                final evento = await Navigator.push<String>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const TelaSelecaoEvento(),
+                  ),
+                );
+
+                if (evento != null && evento.isNotEmpty) {
+                  setState(() {
+                    eventoSelecionado = evento;
+                  });
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Botão Adicionar Fornecedor
             ElevatedButton(
               onPressed: _adicionarFornecedor,
               style: ElevatedButton.styleFrom(

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'tela_categoria.dart';
+import 'telaeventos.dart';
 
 class TelaOrcamento extends StatefulWidget {
   const TelaOrcamento({super.key});
@@ -10,40 +11,52 @@ class TelaOrcamento extends StatefulWidget {
 }
 
 class _TelaOrcamentoState extends State<TelaOrcamento> {
-  String categoriaSelecionada = 'Traje & Acessórios'; 
+  String categoriaSelecionada = 'Traje & Acessórios';
+  String eventoSelecionado = ''; // Variável para armazenar o evento selecionado
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController notaController = TextEditingController();
   final TextEditingController montanteController = TextEditingController();
 
-  Future<void> _adicionarOrcamento() async {
-    final nome = nomeController.text;
-    final nota = notaController.text;
-    final montante = montanteController.text;
+  // Função para obter os eventos disponíveis
+  Future<List<String>> _obterEventos() async {
+    final snapshot = await FirebaseFirestore.instance.collection('events').get();
+    return snapshot.docs.map((doc) => doc['event'] as String).toList();
+  }
 
-    if (nome.isNotEmpty && nota.isNotEmpty && montante.isNotEmpty) {
-      try {
-        await FirebaseFirestore.instance.collection('orcamento').add({
-          'nome': nome,
-          'nota': nota,
-          'categoria': categoriaSelecionada,
-          'montante': double.tryParse(montante) ?? 0.0,
-          'criadoEm': FieldValue.serverTimestamp(),
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Orçamento adicionado com sucesso!')),
-        );
-        Navigator.pop(context);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao adicionar orçamento: $e')),
-        );
-      }
-    } else {
+Future<void> _adicionarOrcamento() async {
+  final nome = nomeController.text;
+  final nota = notaController.text;
+  final montante = montanteController.text;
+
+  // Verificar se todos os campos obrigatórios estão preenchidos
+  if (nome.isNotEmpty && nota.isNotEmpty && montante.isNotEmpty && eventoSelecionado.isNotEmpty) {
+    try {
+      // Aqui estamos incluindo o campo eventoId
+      await FirebaseFirestore.instance.collection('orcamento').add({
+        'nome': nome,
+        'nota': nota,
+        'categoria': categoriaSelecionada,
+        'montante': double.tryParse(montante) ?? 0.0,
+        'eventoId': eventoSelecionado, // Garanta que eventoId está sendo adicionado
+        'criadoEm': FieldValue.serverTimestamp(),
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preencha todos os campos obrigatórios!')),
+        const SnackBar(content: Text('Orçamento adicionado com sucesso!')),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao adicionar orçamento: $e')),
       );
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Preencha todos os campos obrigatórios!')),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -53,13 +66,14 @@ class _TelaOrcamentoState extends State<TelaOrcamento> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context), 
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Campo Nome
             TextField(
               controller: nomeController,
               decoration: const InputDecoration(
@@ -68,6 +82,8 @@ class _TelaOrcamentoState extends State<TelaOrcamento> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Campo Nota
             TextField(
               controller: notaController,
               decoration: const InputDecoration(
@@ -76,6 +92,33 @@ class _TelaOrcamentoState extends State<TelaOrcamento> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Seleção do Evento
+            ListTile(
+              leading: const Icon(Icons.event),
+              title: const Text('Evento'),
+              subtitle: Text(eventoSelecionado.isEmpty
+                  ? 'Nenhum evento selecionado'
+                  : eventoSelecionado),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () async {
+                final evento = await Navigator.push<String>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const TelaSelecaoEvento(),
+                  ),
+                );
+                if (evento != null && evento.isNotEmpty) {
+                  setState(() {
+                    eventoSelecionado = evento;
+                  });
+                }
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // Campo Categoria
             ListTile(
               leading: const Icon(Icons.category),
               title: const Text('Categoria'),
@@ -96,6 +139,8 @@ class _TelaOrcamentoState extends State<TelaOrcamento> {
               },
             ),
             const SizedBox(height: 16),
+
+            // Campo Montante
             TextField(
               controller: montanteController,
               decoration: const InputDecoration(
@@ -105,6 +150,8 @@ class _TelaOrcamentoState extends State<TelaOrcamento> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
+
+            // Botão Adicionar Orçamento
             ElevatedButton(
               onPressed: _adicionarOrcamento,
               style: ElevatedButton.styleFrom(

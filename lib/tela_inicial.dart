@@ -260,7 +260,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const TelaListaOrcamento()),
+                            builder: (context) => const TelaListaOrcamentos()),
                       );
                     },
                   ),

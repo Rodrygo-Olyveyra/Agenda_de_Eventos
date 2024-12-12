@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'tela_lista_convidados.dart';
+import 'telaeventos.dart'; // Importando a tela de seleção de evento
 
 class TelaConvidados extends StatefulWidget {
   const TelaConvidados({super.key});
@@ -19,6 +19,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
 
   String tipoConvidado = 'Adulto';
   String genero = 'Outro';
+  String? eventoSelecionado; // Variável para armazenar o evento selecionado
 
   Future<void> _adicionarConvidado() async {
     final nome = nomeController.text;
@@ -27,6 +28,14 @@ class _TelaConvidadosState extends State<TelaConvidados> {
     final telefone = telefoneController.text;
     final email = emailController.text;
     final endereco = enderecoController.text;
+
+    if (eventoSelecionado == null) {
+      // Verifica se o evento foi selecionado
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('É obrigatório selecionar um evento!')),
+      );
+      return;
+    }
 
     if (nome.isNotEmpty && sobrenome.isNotEmpty && nota.isNotEmpty) {
       try {
@@ -39,6 +48,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
           'telefone': telefone,
           'email': email,
           'endereco': endereco,
+          'eventoId': eventoSelecionado, // Armazenando o ID do evento selecionado
           'criadoEm': FieldValue.serverTimestamp(),
         });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -46,7 +56,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const TelaListaConvidados()),
+          MaterialPageRoute(builder: (context) => const TelaConvidados()),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -77,6 +87,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Campos de entrada para nome, sobrenome, etc.
               Row(
                 children: [
                   Expanded(
@@ -137,6 +148,28 @@ class _TelaConvidadosState extends State<TelaConvidados> {
                 ),
               ),
               const SizedBox(height: 20),
+
+              // Seleção do evento
+              ListTile(
+                leading: const Icon(Icons.event),
+                title: const Text('Evento'),
+                subtitle: Text(eventoSelecionado != null
+                    ? 'Evento selecionado'
+                    : 'Nenhum evento selecionado'),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: () async {
+                  final evento = await Navigator.push<String>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TelaSelecaoEvento(),
+                    ),
+                  );
+                  setState(() {
+                    eventoSelecionado = evento;
+                  });
+                },
+              ),
+
               ElevatedButton(
                 onPressed: _adicionarConvidado,
                 style: ElevatedButton.styleFrom(

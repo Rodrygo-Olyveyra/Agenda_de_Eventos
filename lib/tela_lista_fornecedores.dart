@@ -20,7 +20,7 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('fornecedores')
-            .orderBy('criadoEm', descending: true) 
+            .orderBy('criadoEm', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -52,58 +52,100 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
 
           final fornecedores = snapshot.data!.docs;
 
-          return ListView.builder(
-            itemCount: fornecedores.length,
-            itemBuilder: (context, index) {
-              final fornecedor = fornecedores[index];
+          // Agrupar fornecedores por eventoId
+          Map<String, List<DocumentSnapshot>> fornecedoresPorEvento = {};
 
-              final nome = fornecedor['nome'] ?? 'Sem nome';
-              final nota = fornecedor['nota'] ?? 'Sem nota';
-              final telefone = fornecedor['telefone'] ?? 'Sem telefone';
-              final email = fornecedor['email'] ?? 'Sem e-mail';
-              final site = fornecedor['site'] ?? 'Sem site';
-              final endereco = fornecedor['endereco'] ?? 'Sem endereço';
-              final montante = fornecedor['montante'] ?? 0.0; // Garantir que seja numérico
+          for (var fornecedor in fornecedores) {
+            final eventoId = fornecedor['evento']; // Certifique-se que o campo eventoId existe
 
-              final montanteFormatado = montante is num
-                  ? '\$${montante.toStringAsFixed(2)}'
-                  : '\$0.00';
+            if (eventoId == null || eventoId.isEmpty) {
+              continue; // Ignorar fornecedores sem eventoId
+            }
 
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: ListTile(
-                  title: Text(nome),
-                  subtitle: Text('Nota: $nota\nTelefone: $telefone\nE-mail: $email'),
-                  trailing: Text(montanteFormatado),
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text(nome),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Nota: $nota'),
-                            Text('Telefone: $telefone'),
-                            Text('E-mail: $email'),
-                            Text('Site: $site'),
-                            Text('Endereço: $endereco'),
-                            Text('Montante: $montanteFormatado'),
-                          ],
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('Fechar'),
+            if (!fornecedoresPorEvento.containsKey(eventoId)) {
+              fornecedoresPorEvento[eventoId] = [];
+            }
+
+            fornecedoresPorEvento[eventoId]!.add(fornecedor);
+          }
+
+          // Exibir fornecedores agrupados por evento
+          return ListView(
+            children: fornecedoresPorEvento.entries.map((entry) {
+              final eventoId = entry.key;
+              final fornecedoresDoEvento = entry.value;
+
+              // Buscar o evento para obter o nome
+              return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance.collection('events').doc(eventoId).get(),
+                builder: (context, eventoSnapshot) {
+                  if (eventoSnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!eventoSnapshot.hasData || !eventoSnapshot.data!.exists) {
+                    return const SizedBox.shrink();
+                  }
+
+                  final evento = eventoSnapshot.data!;
+                  final nomeEvento = evento['event'] ?? 'Evento desconhecido';
+
+                  return ExpansionTile(
+                    title: Text(nomeEvento), // Exibe o nome do evento
+                    children: fornecedoresDoEvento.map((fornecedor) {
+                      final nome = fornecedor['nome'] ?? 'Sem nome';
+                      final nota = fornecedor['nota'] ?? 'Sem nota';
+                      final telefone = fornecedor['telefone'] ?? 'Sem telefone';
+                      final email = fornecedor['email'] ?? 'Sem e-mail';
+                      final site = fornecedor['site'] ?? 'Sem site';
+                      final endereco = fornecedor['endereco'] ?? 'Sem endereço';
+                      final montante = fornecedor['montante'] ?? 0.0;
+
+                      final montanteFormatado = montante is num
+                          ? '\$${montante.toStringAsFixed(2)}'
+                          : '\$0.00';
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        child: ListTile(
+                          title: Text(nome),
+                          subtitle: Text(
+                            'Nota: $nota\nTelefone: $telefone\nE-mail: $email',
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                          trailing: Text(montanteFormatado),
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(nome),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Nota: $nota'),
+                                    Text('Telefone: $telefone'),
+                                    Text('E-mail: $email'),
+                                    Text('Site: $site'),
+                                    Text('Endereço: $endereco'),
+                                    Text('Montante: $montanteFormatado'),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Fechar'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
               );
-            },
+            }).toList(),
           );
         },
       ),
@@ -115,7 +157,7 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
           );
 
           if (resultado == true) {
-            setState(() {}); 
+            setState(() {}); // Atualiza a lista após adicionar um fornecedor
           }
         },
         child: const Icon(Icons.add),

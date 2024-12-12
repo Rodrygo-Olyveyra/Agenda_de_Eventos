@@ -2,25 +2,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'tela_orçamento.dart';
 
-class TelaListaOrcamento extends StatefulWidget {
-  const TelaListaOrcamento({super.key});
+class TelaListaOrcamentos extends StatefulWidget {
+  const TelaListaOrcamentos({super.key});
 
   @override
-  _TelaListaOrcamentoState createState() => _TelaListaOrcamentoState();
+  _TelaListaOrcamentosState createState() => _TelaListaOrcamentosState();
 }
 
-class _TelaListaOrcamentoState extends State<TelaListaOrcamento> {
+class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Orçamento'),
+        title: const Text('Orçamentos'),
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('orcamento')
-            .orderBy('criadoEm', descending: true) 
+            .orderBy('criadoEm', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -52,51 +52,88 @@ class _TelaListaOrcamentoState extends State<TelaListaOrcamento> {
 
           final orcamentos = snapshot.data!.docs;
 
-          return ListView.builder(
-            itemCount: orcamentos.length,
-            itemBuilder: (context, index) {
-              final orcamento = orcamentos[index];
-              final nome = orcamento['nome'] ?? 'Sem nome';
-              final nota = orcamento['nota'] ?? 'Sem nota';
-              final categoria = orcamento['categoria'] ?? 'Sem categoria';
-              final montante = orcamento['montante'] ?? 0.0;
+          // Agrupar orçamentos por eventoId
+          Map<String, List<DocumentSnapshot>> orcamentosPorEvento = {};
 
-              final montanteFormatado = montante is num
-                  ? 'R\$ ${montante.toStringAsFixed(2)}'
-                  : 'R\$ 0.00';
+          for (var orcamento in orcamentos) {
+            final eventoId = orcamento['eventoId']; // Certifique-se que o campo eventoId existe
 
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: ListTile(
-                  title: Text(nome),
-                  subtitle: Text('Nota: $nota\nCategoria: $categoria\nMontante: $montanteFormatado'),
-                  trailing: const Icon(Icons.attach_money),
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text(nome),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Nota: $nota'),
-                            Text('Categoria: $categoria'),
-                            Text('Montante: $montanteFormatado'),
-                          ],
+            if (eventoId == null || eventoId.isEmpty) {
+              continue; // Ignorar orçamentos sem eventoId
+            }
+
+            if (!orcamentosPorEvento.containsKey(eventoId)) {
+              orcamentosPorEvento[eventoId] = [];
+            }
+
+            orcamentosPorEvento[eventoId]!.add(orcamento);
+          }
+
+          // Exibir orçamentos agrupados por evento
+          return ListView(
+            children: orcamentosPorEvento.entries.map((entry) {
+              final eventoId = entry.key;
+              final orcamentosDoEvento = entry.value;
+
+              // Buscar o evento para obter o nome
+              return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance.collection('events').doc(eventoId).get(),
+                builder: (context, eventoSnapshot) {
+                  if (eventoSnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!eventoSnapshot.hasData || !eventoSnapshot.data!.exists) {
+                    return const SizedBox.shrink();
+                  }
+
+                  final evento = eventoSnapshot.data!;
+                  final nomeEvento = evento['event'] ?? 'Evento desconhecido';
+
+                  return ExpansionTile(
+                    title: Text(nomeEvento),
+                    children: orcamentosDoEvento.map((orcamento) {
+                      final nome = orcamento['nome'] ?? 'Nome não especificado';
+                      final categoria = orcamento['categoria'] ?? 'Categoria não especificada';
+                      final montante = orcamento['montante'] ?? 0.0;
+                      final nota = orcamento['nota'] ?? 'Sem nota';
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        child: ListTile(
+                          title: Text(nome),
+                          subtitle: Text('Categoria: $categoria\nMontante: \$${montante.toStringAsFixed(2)}\nNota: $nota'),
+                          trailing: const Icon(Icons.money),
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(nome),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Categoria: $categoria'),
+                                    Text('Montante: \$${montante.toStringAsFixed(2)}'),
+                                    Text('Nota: $nota'),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Fechar'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('Fechar'),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    }).toList(),
+                  );
+                },
               );
-            },
+            }).toList(),
           );
         },
       ),
@@ -108,7 +145,7 @@ class _TelaListaOrcamentoState extends State<TelaListaOrcamento> {
           );
 
           if (resultado == true) {
-            setState(() {}); 
+            setState(() {}); // Atualiza a lista após adicionar um orçamento
           }
         },
         child: const Icon(Icons.add),
