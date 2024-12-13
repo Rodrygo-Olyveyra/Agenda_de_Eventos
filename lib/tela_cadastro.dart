@@ -92,9 +92,10 @@ class _TelaCadastroState extends State<TelaCadastro> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'eventsy.png',
+                  'Eventsy.png',
                   width: 250,
                   height: 250,
+                   fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 1),
                 Card(

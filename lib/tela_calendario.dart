@@ -126,7 +126,7 @@ Future<void> _deleteEvent(Map<String, String> event) async {
   } catch (e) {
     print('Erro ao excluir evento: $e');
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Erro ao excluir o evento.'),
         backgroundColor: Colors.red,
       ),
@@ -285,7 +285,7 @@ drawer: Drawer(
           ),
         ),
         accountName: const Text(
-          'Bem-vindo ao Eventsy', // Título fixo
+          'Bem-vindo ao Eventsy', 
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         accountEmail: Text(
@@ -304,7 +304,7 @@ drawer: Drawer(
           Navigator.pop(context);
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => TelaInicialPersonalizada()),
+            MaterialPageRoute(builder: (context) => const TelaInicialPersonalizada()),
           );
         },
       ),
@@ -346,7 +346,7 @@ drawer: Drawer(
         leading: const Icon(Icons.settings, color: Colors.teal),
         title: const Text('Configurações', style: TextStyle(fontSize: 18)),
         onTap: () {
-          // Ação para configurações
+          
         },
       ),
       ListTile(
@@ -356,7 +356,7 @@ drawer: Drawer(
           await FirebaseAuth.instance.signOut();
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => TelaLogin()),
+            MaterialPageRoute(builder: (context) => const TelaLogin()),
           );
         },
       ),
@@ -491,7 +491,7 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
   @override
   Widget build(BuildContext context) {
     List<DateTime> sortedEventDates = widget.events.keys.toList()
-      ..sort((a, b) => a.compareTo(b)); // Ordena as datas
+      ..sort((a, b) => a.compareTo(b)); 
 
     return Scaffold(
       appBar: AppBar(

@@ -76,7 +76,7 @@ class _TelaEsqueciSenhaState extends State<TelaEsqueciSenha> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'Eventsy-removebg.png', 
+                'Eventsy.png', 
                 width: 250,
                 height: 250,
               ),

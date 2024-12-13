@@ -142,7 +142,7 @@ drawer: Drawer(
           Navigator.pop(context);
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => TelaInicialPersonalizada()),
+            MaterialPageRoute(builder: (context) => const TelaInicialPersonalizada()),
           );
         },
       ),
@@ -194,7 +194,7 @@ drawer: Drawer(
           await FirebaseAuth.instance.signOut();
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => TelaLogin()),
+            MaterialPageRoute(builder: (context) => const TelaLogin()),
           );
         },
       ),
@@ -411,7 +411,7 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
   @override
   Widget build(BuildContext context) {
     List<DateTime> sortedEventDates = widget.events.keys.toList()
-      ..sort((a, b) => a.compareTo(b)); // Ordena as datas
+      ..sort((a, b) => a.compareTo(b)); 
 
     return Scaffold(
       appBar: AppBar(
