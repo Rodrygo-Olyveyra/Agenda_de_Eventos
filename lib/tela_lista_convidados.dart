@@ -14,13 +14,15 @@ class _TelaListaConvidadosState extends State<TelaListaConvidados> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Convidados'),
+        title: const Text('Convidados',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         centerTitle: true,
+        backgroundColor: Colors.teal,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('convidados')
-            .orderBy('criadoEm', descending: true) // Ordenar por data de criação
+            .orderBy('criadoEm', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -31,7 +33,8 @@ class _TelaListaConvidadosState extends State<TelaListaConvidados> {
             return const Center(
               child: Text(
                 'Erro ao carregar os convidados',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                style: TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
               ),
             );
           }
@@ -39,7 +42,7 @@ class _TelaListaConvidadosState extends State<TelaListaConvidados> {
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
               child: Text(
-                'Nenhum convidado adicionado',
+                'Nenhum convidado adicionado ainda!\nClique no botão abaixo para começar.',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -52,14 +55,13 @@ class _TelaListaConvidadosState extends State<TelaListaConvidados> {
 
           final convidados = snapshot.data!.docs;
 
-          // Agrupar convidados por eventoId
           Map<String, List<DocumentSnapshot>> convidadosPorEvento = {};
 
           for (var convidado in convidados) {
-            final eventoId = convidado['eventoId']; // Verifique se o campo existe
+            final eventoId = convidado['eventoId'];
 
             if (eventoId == null) {
-              continue; // Ignorar convidados sem eventoId
+              continue;
             }
 
             if (!convidadosPorEvento.containsKey(eventoId)) {
@@ -69,72 +71,93 @@ class _TelaListaConvidadosState extends State<TelaListaConvidados> {
             convidadosPorEvento[eventoId]!.add(convidado);
           }
 
-          // Exibir os convidados agrupados por evento
           return ListView(
             children: convidadosPorEvento.entries.map((entry) {
               final eventoId = entry.key;
               final convidadosDoEvento = entry.value;
 
-              // Buscar o evento para obter o nome (campo 'event')
               return FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance.collection('events').doc(eventoId).get(),
+                future: FirebaseFirestore.instance
+                    .collection('events')
+                    .doc(eventoId)
+                    .get(),
                 builder: (context, eventoSnapshot) {
                   if (eventoSnapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const SizedBox.shrink();
                   }
 
                   if (!eventoSnapshot.hasData || !eventoSnapshot.data!.exists) {
-                    return const SizedBox.shrink(); // Se o evento não for encontrado, não exibe nada
+                    return const SizedBox.shrink();
                   }
 
                   final evento = eventoSnapshot.data!;
-                  final nomeEvento = evento['event'] ?? 'Evento desconhecido'; // Usando 'event' no lugar de 'nome'
+                  final nomeEvento = evento['event'] ?? 'Evento desconhecido';
 
-                  return ExpansionTile(
-                    title: Text(nomeEvento),
-                    children: convidadosDoEvento.map((convidado) {
-                      final nome = convidado['nome'] ?? 'Sem nome';
-                      final sobrenome = convidado['sobrenome'] ?? 'Sobrenome desconhecido';
-                      final tipoConvidado = convidado['tipoConvidado'] ?? 'Não especificado';
-                      final genero = convidado['genero'] ?? 'Não especificado';
-                      final telefone = convidado['telefone'] ?? 'Não informado';
-                      final email = convidado['email'] ?? 'Não informado';
-                      final endereco = convidado['endereco'] ?? 'Não informado';
+                  return Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ExpansionTile(
+                      tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      title: Text(
+                        nomeEvento,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal,
+                        ),
+                      ),
+                      children: convidadosDoEvento.map((convidado) {
+                        final nome = convidado['nome'] ?? 'Sem nome';
+                        final sobrenome = convidado['sobrenome'] ?? '';
+                        final tipoConvidado = convidado['tipoConvidado'] ?? 'Não especificado';
+                        final genero = convidado['genero'] ?? 'Não especificado';
 
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                        child: ListTile(
-                          title: Text('$nome $sobrenome'),
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.teal,
+                            child: Text(
+                              nome.substring(0, 1).toUpperCase(),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          title: Text('$nome $sobrenome',
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w600)),
                           subtitle: Text('$tipoConvidado - $genero'),
-                          trailing: const Icon(Icons.person),
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text('$nome $sobrenome'),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Tipo: $tipoConvidado'),
-                                    Text('Gênero: $genero'),
-                                    Text('Telefone: $telefone'),
-                                    Text('Email: $email'),
-                                    Text('Endereço: $endereco'),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.info_outline, color: Colors.teal),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('$nome $sobrenome'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Tipo: $tipoConvidado'),
+                                      Text('Gênero: $genero'),
+                                      Text('Telefone: ${convidado['telefone'] ?? 'Não informado'}'),
+                                      Text('Email: ${convidado['email'] ?? 'Não informado'}'),
+                                      Text('Endereço: ${convidado['endereco'] ?? 'Não informado'}'),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('Fechar'),
+                                    ),
                                   ],
                                 ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Fechar'),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    }).toList(),
+                              );
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   );
                 },
               );
@@ -143,6 +166,7 @@ class _TelaListaConvidadosState extends State<TelaListaConvidados> {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.teal,
         onPressed: () async {
           final resultado = await Navigator.push(
             context,
@@ -150,10 +174,10 @@ class _TelaListaConvidadosState extends State<TelaListaConvidados> {
           );
 
           if (resultado == true) {
-            setState(() {}); // Atualiza a lista após adicionar um convidado
+            setState(() {});
           }
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

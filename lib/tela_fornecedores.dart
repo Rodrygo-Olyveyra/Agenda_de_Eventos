@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'tela_categoria.dart';
-import 'telaeventos.dart';// Importar a tela de seleção de evento
+import 'telaeventos.dart'; // Importar a tela de seleção de evento
 
 class TelaFornecedor extends StatefulWidget {
   const TelaFornecedor({super.key});
@@ -22,9 +22,21 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
   final TextEditingController montanteController = TextEditingController();
 
   Future<void> _adicionarFornecedor() async {
-    if (nomeController.text.isEmpty || montanteController.text.isEmpty || eventoSelecionado.isEmpty) {
+    // Verificando se os campos essenciais estão preenchidos
+    if (nomeController.text.isEmpty ||
+        montanteController.text.isEmpty ||
+        eventoSelecionado.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Preencha todos os campos obrigatórios!')),
+      );
+      return;
+    }
+
+    // Verificando se o montante é um número válido
+    double? montante = double.tryParse(montanteController.text);
+    if (montante == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, insira um valor válido para o montante!')),
       );
       return;
     }
@@ -32,22 +44,25 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
     try {
       final fornecedoresRef = FirebaseFirestore.instance.collection('fornecedores');
 
+      // Adicionando o fornecedor ao Firestore
       await fornecedoresRef.add({
         'nome': nomeController.text,
         'nota': notaController.text,
         'categoria': categoriaSelecionada,
-        'evento': eventoSelecionado, // Adicionando o eventoId
+        'evento': eventoSelecionado, // Adicionando o evento selecionado
         'telefone': telefoneController.text,
         'email': emailController.text,
         'site': siteController.text,
         'endereco': enderecoController.text,
-        'montante': double.parse(montanteController.text),
+        'montante': montante, // Usando o montante como número
         'criadoEm': Timestamp.now(),
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Fornecedor adicionado com sucesso!')),
       );
+
+      // Limpando os campos
       nomeController.clear();
       notaController.clear();
       telefoneController.clear();
@@ -60,6 +75,8 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
         categoriaSelecionada = 'Traje & Acessórios';
         eventoSelecionado = ''; // Limpar a seleção de evento
       });
+
+      // Fechar a tela após adicionar
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -181,7 +198,9 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
             ListTile(
               leading: const Icon(Icons.event),
               title: const Text('Evento'),
-              subtitle: Text(eventoSelecionado.isNotEmpty ? eventoSelecionado : 'Nenhum evento selecionado'),
+              subtitle: Text(eventoSelecionado.isNotEmpty
+                  ? eventoSelecionado
+                  : 'Nenhum evento selecionado'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () async {
                 final evento = await Navigator.push<String>(

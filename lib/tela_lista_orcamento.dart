@@ -14,8 +14,12 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Orçamentos'),
+        title: const Text(
+          'Orçamentos',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.teal,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -31,7 +35,8 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
             return const Center(
               child: Text(
                 'Erro ao carregar os orçamentos',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                style: TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
               ),
             );
           }
@@ -39,7 +44,7 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
               child: Text(
-                'Nenhum orçamento adicionado',
+                'Nenhum orçamento adicionado ainda!\nClique no botão abaixo para começar.',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -52,14 +57,13 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
 
           final orcamentos = snapshot.data!.docs;
 
-          // Agrupar orçamentos por eventoId
           Map<String, List<DocumentSnapshot>> orcamentosPorEvento = {};
 
           for (var orcamento in orcamentos) {
-            final eventoId = orcamento['eventoId']; // Certifique-se que o campo eventoId existe
+            final eventoId = orcamento['eventoId'];
 
             if (eventoId == null || eventoId.isEmpty) {
-              continue; // Ignorar orçamentos sem eventoId
+              continue;
             }
 
             if (!orcamentosPorEvento.containsKey(eventoId)) {
@@ -69,18 +73,19 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
             orcamentosPorEvento[eventoId]!.add(orcamento);
           }
 
-          // Exibir orçamentos agrupados por evento
           return ListView(
             children: orcamentosPorEvento.entries.map((entry) {
               final eventoId = entry.key;
               final orcamentosDoEvento = entry.value;
 
-              // Buscar o evento para obter o nome
               return FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance.collection('events').doc(eventoId).get(),
+                future: FirebaseFirestore.instance
+                    .collection('events')
+                    .doc(eventoId)
+                    .get(),
                 builder: (context, eventoSnapshot) {
                   if (eventoSnapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const SizedBox.shrink();
                   }
 
                   if (!eventoSnapshot.hasData || !eventoSnapshot.data!.exists) {
@@ -90,20 +95,50 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
                   final evento = eventoSnapshot.data!;
                   final nomeEvento = evento['event'] ?? 'Evento desconhecido';
 
-                  return ExpansionTile(
-                    title: Text(nomeEvento),
-                    children: orcamentosDoEvento.map((orcamento) {
-                      final nome = orcamento['nome'] ?? 'Nome não especificado';
-                      final categoria = orcamento['categoria'] ?? 'Categoria não especificada';
-                      final montante = orcamento['montante'] ?? 0.0;
-                      final nota = orcamento['nota'] ?? 'Sem nota';
+                  return Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ExpansionTile(
+                      tilePadding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      title: Text(
+                        nomeEvento,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal,
+                        ),
+                      ),
+                      children: orcamentosDoEvento.map((orcamento) {
+                        final nome = orcamento['nome'] ?? 'Sem nome';
+                        final categoria =
+                            orcamento['categoria'] ?? 'Categoria não especificada';
+                        final montante = orcamento['montante'] ?? 0.0;
+                        final nota = orcamento['nota'] ?? 'Sem nota';
 
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                        child: ListTile(
-                          title: Text(nome),
-                          subtitle: Text('Categoria: $categoria\nMontante: \$${montante.toStringAsFixed(2)}\nNota: $nota'),
-                          trailing: const Icon(Icons.money),
+                        final montanteFormatado = montante is num
+                            ? 'R\$ ${montante.toStringAsFixed(2)}'
+                            : 'R\$ 0.00';
+
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.teal,
+                            child: Text(
+                              nome.substring(0, 1).toUpperCase(),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          title: Text(
+                            nome,
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                              'Categoria: $categoria\nMontante: $montanteFormatado\nNota: $nota'),
+                          trailing: const Icon(Icons.attach_money, color: Colors.green),
                           onTap: () {
                             showDialog(
                               context: context,
@@ -114,7 +149,7 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text('Categoria: $categoria'),
-                                    Text('Montante: \$${montante.toStringAsFixed(2)}'),
+                                    Text('Montante: $montanteFormatado'),
                                     Text('Nota: $nota'),
                                   ],
                                 ),
@@ -127,9 +162,9 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
                               ),
                             );
                           },
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+                    ),
                   );
                 },
               );
@@ -138,6 +173,7 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.teal,
         onPressed: () async {
           final resultado = await Navigator.push(
             context,
@@ -145,10 +181,10 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
           );
 
           if (resultado == true) {
-            setState(() {}); // Atualiza a lista após adicionar um orçamento
+            setState(() {});
           }
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

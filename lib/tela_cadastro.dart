@@ -92,19 +92,11 @@ class _TelaCadastroState extends State<TelaCadastro> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'Eventsy-removebg.png',
+                  'eventsy.png',
                   width: 250,
                   height: 250,
                 ),
-                const Text(
-                  'Agenda Eventsy',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 1),
                 Card(
                   elevation: 5,
                   color: Colors.white,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'tela_lista_convidados.dart';
-import 'telaeventos.dart'; // Importação da tela para selecionar o evento
+import 'telaeventos.dart'; // Importando a tela de seleção de evento
 
 class TelaConvidados extends StatefulWidget {
   const TelaConvidados({super.key});
@@ -20,7 +19,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
 
   String tipoConvidado = 'Adulto';
   String genero = 'Outro';
-  String? eventoSelecionado;
+  String? eventoSelecionado; // Variável para armazenar o evento selecionado
 
   Future<void> _adicionarConvidado() async {
     final nome = nomeController.text;
@@ -31,6 +30,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
     final endereco = enderecoController.text;
 
     if (eventoSelecionado == null) {
+      // Verifica se o evento foi selecionado
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('É obrigatório selecionar um evento!')),
       );
@@ -48,7 +48,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
           'telefone': telefone,
           'email': email,
           'endereco': endereco,
-          'eventoId': eventoSelecionado,
+          'eventoId': eventoSelecionado, // Armazenando o ID do evento selecionado
           'criadoEm': FieldValue.serverTimestamp(),
         });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -56,7 +56,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const TelaListaConvidados()),
+          MaterialPageRoute(builder: (context) => const TelaConvidados()),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -78,7 +78,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context), 
         ),
       ),
       body: Padding(
@@ -87,6 +87,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Campos de entrada para nome, sobrenome, etc.
               Row(
                 children: [
                   Expanded(
@@ -147,11 +148,13 @@ class _TelaConvidadosState extends State<TelaConvidados> {
                 ),
               ),
               const SizedBox(height: 20),
+
+              // Seleção do evento
               ListTile(
                 leading: const Icon(Icons.event),
                 title: const Text('Evento'),
                 subtitle: Text(eventoSelecionado != null
-                    ? 'Evento selecionado: $eventoSelecionado'
+                    ? 'Evento selecionado'
                     : 'Nenhum evento selecionado'),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () async {
@@ -166,6 +169,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
                   });
                 },
               ),
+
               ElevatedButton(
                 onPressed: _adicionarConvidado,
                 style: ElevatedButton.styleFrom(
@@ -195,6 +199,11 @@ class _TelaConvidadosState extends State<TelaConvidados> {
           if (index == 2) tipoConvidado = 'Bebê';
         });
       },
+      color: Colors.grey,
+      selectedColor: Colors.white,
+      selectedBorderColor: Colors.orange,
+      borderRadius: BorderRadius.circular(8),
+      fillColor: Colors.orange,
       children: const [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -226,6 +235,11 @@ class _TelaConvidadosState extends State<TelaConvidados> {
           if (index == 2) genero = 'Outro';
         });
       },
+      color: Colors.grey,
+      selectedColor: Colors.white,
+      selectedBorderColor: Colors.orange,
+      borderRadius: BorderRadius.circular(8),
+      fillColor: Colors.orange,
       children: const [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),

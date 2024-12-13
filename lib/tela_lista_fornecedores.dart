@@ -14,8 +14,12 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fornecedores'),
+        title: const Text(
+          'Fornecedores',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.teal,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -31,7 +35,11 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
             return const Center(
               child: Text(
                 'Erro ao carregar os fornecedores',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
               ),
             );
           }
@@ -39,7 +47,7 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
               child: Text(
-                'Nenhum fornecedor adicionado',
+                'Nenhum fornecedor adicionado ainda!\nClique no botão abaixo para começar.',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -52,14 +60,13 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
 
           final fornecedores = snapshot.data!.docs;
 
-          // Agrupar fornecedores por eventoId
           Map<String, List<DocumentSnapshot>> fornecedoresPorEvento = {};
 
           for (var fornecedor in fornecedores) {
-            final eventoId = fornecedor['evento']; // Certifique-se que o campo eventoId existe
+            final eventoId = fornecedor['evento'];
 
             if (eventoId == null || eventoId.isEmpty) {
-              continue; // Ignorar fornecedores sem eventoId
+              continue;
             }
 
             if (!fornecedoresPorEvento.containsKey(eventoId)) {
@@ -69,18 +76,19 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
             fornecedoresPorEvento[eventoId]!.add(fornecedor);
           }
 
-          // Exibir fornecedores agrupados por evento
           return ListView(
             children: fornecedoresPorEvento.entries.map((entry) {
               final eventoId = entry.key;
               final fornecedoresDoEvento = entry.value;
 
-              // Buscar o evento para obter o nome
               return FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance.collection('events').doc(eventoId).get(),
+                future: FirebaseFirestore.instance
+                    .collection('events')
+                    .doc(eventoId)
+                    .get(),
                 builder: (context, eventoSnapshot) {
                   if (eventoSnapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const SizedBox.shrink();
                   }
 
                   if (!eventoSnapshot.hasData || !eventoSnapshot.data!.exists) {
@@ -90,29 +98,57 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
                   final evento = eventoSnapshot.data!;
                   final nomeEvento = evento['event'] ?? 'Evento desconhecido';
 
-                  return ExpansionTile(
-                    title: Text(nomeEvento), // Exibe o nome do evento
-                    children: fornecedoresDoEvento.map((fornecedor) {
-                      final nome = fornecedor['nome'] ?? 'Sem nome';
-                      final nota = fornecedor['nota'] ?? 'Sem nota';
-                      final telefone = fornecedor['telefone'] ?? 'Sem telefone';
-                      final email = fornecedor['email'] ?? 'Sem e-mail';
-                      final site = fornecedor['site'] ?? 'Sem site';
-                      final endereco = fornecedor['endereco'] ?? 'Sem endereço';
-                      final montante = fornecedor['montante'] ?? 0.0;
+                  return Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ExpansionTile(
+                      tilePadding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      title: Text(
+                        nomeEvento,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal,
+                        ),
+                      ),
+                      children: fornecedoresDoEvento.map((fornecedor) {
+                        final nome = fornecedor['nome'] ?? 'Sem nome';
+                        final nota = fornecedor['nota'] ?? 'Sem nota';
+                        final telefone = fornecedor['telefone'] ?? 'Sem telefone';
+                        final email = fornecedor['email'] ?? 'Sem e-mail';
+                        final site = fornecedor['site'] ?? 'Sem site';
+                        final endereco = fornecedor['endereco'] ?? 'Sem endereço';
+                        final montante = fornecedor['montante'] ?? 0.0;
 
-                      final montanteFormatado = montante is num
-                          ? '\$${montante.toStringAsFixed(2)}'
-                          : '\$0.00';
+                        final montanteFormatado = montante is num
+                            ? '\$${montante.toStringAsFixed(2)}'
+                            : '\$0.00';
 
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                        child: ListTile(
-                          title: Text(nome),
-                          subtitle: Text(
-                            'Nota: $nota\nTelefone: $telefone\nE-mail: $email',
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.teal,
+                            child: Text(
+                              nome.substring(0, 1).toUpperCase(),
+                              style: const TextStyle(color: Colors.white),
+                            ),
                           ),
-                          trailing: Text(montanteFormatado),
+                          title: Text(
+                            nome,
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                              'Nota: $nota\nTelefone: $telefone\nE-mail: $email'),
+                          trailing: Text(
+                            montanteFormatado,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green),
+                          ),
                           onTap: () {
                             showDialog(
                               context: context,
@@ -139,9 +175,9 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
                               ),
                             );
                           },
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+                    ),
                   );
                 },
               );
@@ -150,6 +186,7 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.teal,
         onPressed: () async {
           final resultado = await Navigator.push(
             context,
@@ -157,10 +194,10 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
           );
 
           if (resultado == true) {
-            setState(() {}); // Atualiza a lista após adicionar um fornecedor
+            setState(() {});
           }
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
