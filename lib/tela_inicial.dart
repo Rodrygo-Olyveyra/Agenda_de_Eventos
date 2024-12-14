@@ -107,7 +107,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
   Widget build(BuildContext context) {
     var scaffold = Scaffold(
       appBar: AppBar(
-        title: const Text('Eventsy: Sua agenda de eventos!!'),
+        title: const Text('Eventsy: Agenda de Eventos'),
         centerTitle: true,
       ),
 drawer: Drawer(
@@ -123,7 +123,7 @@ drawer: Drawer(
           ),
         ),
         accountName: const Text(
-          'Bem-vindo ao Eventsy', // Título fixo
+          'Bem-vindo ao Eventsy',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         accountEmail: Text(
@@ -178,13 +178,6 @@ drawer: Drawer(
             context,
             MaterialPageRoute(builder: (context) => const TelaCalendario()),
           );
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.settings, color: Colors.teal),
-        title: const Text('Configurações', style: TextStyle(fontSize: 18)),
-        onTap: () {
-          // Ação para configurações
         },
       ),
       ListTile(

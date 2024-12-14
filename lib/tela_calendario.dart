@@ -270,7 +270,8 @@ Future<void> _deleteEvent(Map<String, String> event) async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calendário'),
+        title: const Text('Calendário Eventsy'),
+        centerTitle: true,
         backgroundColor: Colors.teal,
       ),
 drawer: Drawer(
@@ -341,13 +342,6 @@ drawer: Drawer(
             context,
             MaterialPageRoute(builder: (context) => const TelaCalendario()),
           );
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.settings, color: Colors.teal),
-        title: const Text('Configurações', style: TextStyle(fontSize: 18)),
-        onTap: () {
-          
         },
       ),
       ListTile(
