@@ -33,6 +33,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
   }
 
 
+
   void _loadEvents() async {
     if (user == null) {
       print('Usuário não autenticado!');

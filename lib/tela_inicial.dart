@@ -411,7 +411,7 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
   @override
   Widget build(BuildContext context) {
     List<DateTime> sortedEventDates = widget.events.keys.toList()
-      ..sort((a, b) => a.compareTo(b)); 
+      ..sort((a, b) => a.compareTo(b));
 
     return Scaffold(
       appBar: AppBar(
@@ -440,8 +440,7 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
                     DateFormat('d MMMM yyyy', 'pt_BR').format(eventDate);
 
                 return Card(
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                  margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -467,8 +466,7 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
                             vertical: 6, horizontal: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          side:
-                              const BorderSide(color: Colors.teal, width: 0.5),
+                          side: const BorderSide(color: Colors.teal, width: 0.5),
                         ),
                         elevation: 4,
                         child: ListTile(
@@ -528,13 +526,15 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
                               );
                               if (confirmDelete == true) {
                                 await _deleteEventFromFirebase(event);
-                                widget.onDeleteEvent(event);
+                                // Passando a função onDeleteEvent para atualizar a Tela de Calendário
+                                widget.onDeleteEvent(event);  // Chama a função na Tela de Calendário
                                 setState(() {
                                   widget.events[eventDate]?.remove(event);
                                   if (widget.events[eventDate]?.isEmpty ?? false) {
                                     widget.events.remove(eventDate);
                                   }
                                 });
+
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Evento excluído com sucesso!'),
@@ -544,7 +544,6 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
                               }
                             },
                           ),
-                          onTap: () {},
                         ),
                       );
                     }).toList(),
@@ -555,6 +554,7 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
     );
   }
 }
+
   @override
   Widget build(BuildContext context, dynamic events) {
     return Scaffold(
