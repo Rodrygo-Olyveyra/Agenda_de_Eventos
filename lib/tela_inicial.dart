@@ -13,14 +13,18 @@ class TelaInicialPersonalizada extends StatefulWidget {
   const TelaInicialPersonalizada({super.key});
 
   @override
-  _TelaInicialPersonalizadaState createState() =>
-      _TelaInicialPersonalizadaState();
+  _TelaInicialPersonalizadaState createState() => _TelaInicialPersonalizadaState();
 }
 
 class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
   late Map<DateTime, List<Map<String, String>>> _events;
   late CollectionReference eventsCollection;
   late User? user;
+
+  final Color primaryColor = const Color(0xFF32CD99);
+  final Color secondaryColor = const Color(0xFF20B2AA);
+  final Color backgroundColor = const Color(0xFFF8F8F8);
+  final Color cardColor = Colors.white;
 
   @override
   void initState() {
@@ -57,8 +61,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
     }
   }
 
-  Future<void> _deleteEvent(
-      String eventId, DateTime eventDate, Map<String, String> event) async {
+  Future<void> _deleteEvent(String eventId, DateTime eventDate, Map<String, String> event) async {
     try {
       await eventsCollection.doc(eventId).delete();
 
@@ -87,261 +90,223 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
     }
   }
 
-  Map<String, List<Map<String, String>>> _groupEventsByMonth() {
-    Map<String, List<Map<String, String>>> groupedEvents = {};
-
-    _events.forEach((date, eventList) {
-      String monthYearKey = DateFormat('MMMM - yyyy', 'pt_BR').format(date);
-      if (groupedEvents[monthYearKey] == null) {
-        groupedEvents[monthYearKey] = [];
-      }
-      groupedEvents[monthYearKey]!.addAll(eventList);
-    });
-
-    groupedEvents.removeWhere((key, value) => value.isEmpty);
-
-    return groupedEvents;
-  }
-
   @override
   Widget build(BuildContext context) {
     var scaffold = Scaffold(
       appBar: AppBar(
         title: const Text('Eventsy: Agenda de Eventos'),
         centerTitle: true,
+        backgroundColor: primaryColor, 
       ),
-drawer: Drawer(
-  child: ListView(
-    padding: EdgeInsets.zero,
-    children: <Widget>[
-      UserAccountsDrawerHeader(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF32CD99), Color(0xFF20B2AA)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        accountName: const Text(
-          'Bem-vindo ao Eventsy',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        accountEmail: Text(
-          FirebaseAuth.instance.currentUser?.email ?? 'Sem e-mail cadastrado', 
-          style: const TextStyle(fontSize: 16, color: Colors.white70),
-        ),
-        currentAccountPicture: const CircleAvatar(
-          backgroundColor: Colors.white,
-          child: Icon(Icons.event, size: 40, color: Color(0xFF32CD99)),
-        ),
-      ),
-      ListTile(
-        leading: const Icon(Icons.home, color: Colors.teal),
-        title: const Text('Início', style: TextStyle(fontSize: 18)),
-        onTap: () {
-          Navigator.pop(context);
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const TelaInicialPersonalizada()),
-          );
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.event_note, color: Colors.teal),
-        title: const Text('Lista de Eventos', style: TextStyle(fontSize: 18)),
-        onTap: () {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TelaListaEventos(
-                events: _events,
-                onDeleteEvent: (event) {
-                  setState(() {
-                    _events[event['date']]?.remove(event);
-                    if (_events[event['date']]?.isEmpty == true) {
-                      _events.remove(event['date']);
-                    }
-                  });
-                },
-              ),
-            ),
-          );
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.calendar_today, color: Colors.teal),
-        title: const Text('Calendário', style: TextStyle(fontSize: 18)),
-        onTap: () {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const TelaCalendario()),
-          );
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.logout, color: Colors.red),
-        title: const Text('Sair', style: TextStyle(fontSize: 18)),
-        onTap: () async {
-          await FirebaseAuth.instance.signOut();
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const TelaLogin()),
-          );
-        },
-      ),
-      const Divider(),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: Text(
-          'Outras opções',
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-  ListTile(
-  leading: const Icon(Icons.info_outline, color: Colors.teal),
-  title: const Text('Sobre o App', style: TextStyle(fontSize: 18)),
-  onTap: () {
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const TelaSobreApp()),
-    );
-  },
-),
-    ],
-  ),
-),
-  body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ContadorItem(label: 'Dias', value: '00'),
-                        ContadorItem(label: 'Horas', value: '00'),
-                        ContadorItem(label: 'Min.', value: '00'),
-                        ContadorItem(label: 'Seg.', value: '00'),
-                      ],
-                    ),
-                    SizedBox(height: 16),
-                    ListTile(
-                      leading: Icon(Icons.event, size: 40),
-                      title: Text(
-                        'O nome não está definido',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Text('A data não está definida, Seu evento'),
-                      trailing: Icon(Icons.menu),
-                    ),
-                  ],
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [primaryColor, secondaryColor],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'MENU',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+              accountName: const Text(
+                'Bem-vindo ao Eventsy',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              accountEmail: Text(
+                FirebaseAuth.instance.currentUser?.email ?? 'Sem e-mail cadastrado',
+                style: const TextStyle(fontSize: 16, color: Colors.white70),
+              ),
+              currentAccountPicture: const CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(Icons.event, size: 40, color: Color(0xFF32CD99)),
               ),
             ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 3,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                children: [
-                  _buildMenuItem(
-                    icon: Icons.people,
-                    label: 'Convidados',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const TelaListaConvidados()),
-                      );
-                    },
-                  ),
-                  _buildMenuItem(
-                    icon: Icons.attach_money,
-                    label: 'Orçamento',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const TelaListaOrcamentos()),
-                      );
-                    },
-                  ),
-                  _buildMenuItem(
-                    icon: Icons.business,
-                    label: 'Fornecedores',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const TelaListaFornecedores()),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-    return scaffold;
-  }
-  void _confirmarLogout(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirmar Logout'),
-          content: const Text('Você tem certeza de que deseja sair?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
+            ListTile(
+              leading: const Icon(Icons.home, color: Colors.teal),
+              title: const Text('Início', style: TextStyle(fontSize: 18)),
+              onTap: () {
                 Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TelaInicialPersonalizada()),
+                );
               },
-              child: const Text('Cancelar'),
             ),
-            TextButton(
-              onPressed: () async {
+            ListTile(
+              leading: const Icon(Icons.event_note, color: Colors.teal),
+              title: const Text('Lista de Eventos', style: TextStyle(fontSize: 18)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TelaListaEventos(
+                      events: _events,
+                      onDeleteEvent: (event) {
+                        setState(() {
+                          _events[event['date']]?.remove(event);
+                          if (_events[event['date']]?.isEmpty == true) {
+                            _events.remove(event['date']);
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_today, color: Colors.teal),
+              title: const Text('Calendário', style: TextStyle(fontSize: 18)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TelaCalendario()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text('Sair', style: TextStyle(fontSize: 18)),
+              onTap: () async {
                 await FirebaseAuth.instance.signOut();
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const TelaLogin()),
                 );
               },
-              child: const Text('Sair'),
+            ),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Text(
+                'Outras opções',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline, color: Colors.teal),
+              title: const Text('Sobre o App', style: TextStyle(fontSize: 18)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TelaSobreApp()),
+                );
+              },
             ),
           ],
-        );
-      },
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32.0),
+              child: Card(
+                elevation: 4,
+                color: cardColor, 
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Organize seus eventos de forma simples e eficiente.',
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'O que você gostaria de fazer?',
+                        style: TextStyle(fontSize: 25),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Center(
+              child: Text(
+                'MENU',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: Center(
+                child: GridView.count(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  children: [
+                    _buildMenuItem(
+                      icon: Icons.people,
+                      label: 'Convidados',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const TelaListaConvidados()),
+                        );
+                      },
+                    ),
+                    _buildMenuItem(
+                      icon: Icons.attach_money,
+                      label: 'Orçamento',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const TelaListaOrcamentos()),
+                        );
+                      },
+                    ),
+                    _buildMenuItem(
+                      icon: Icons.business,
+                      label: 'Fornecedores',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const TelaListaFornecedores()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
+
+    return scaffold;
   }
+
   Widget _buildMenuItem({
     required IconData icon,
     required String label,
@@ -354,7 +319,7 @@ drawer: Drawer(
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundColor: Colors.blueAccent,
+            backgroundColor: primaryColor, // Usando a cor primária
             child: Icon(icon, size: 30, color: Colors.white),
           ),
           const SizedBox(height: 8),
@@ -368,6 +333,7 @@ drawer: Drawer(
     );
   }
 }
+
 class TelaListaEventos extends StatefulWidget {
   final Map<DateTime, List<Map<String, String>>> events;
   final Function(Map<String, String>) onDeleteEvent;
@@ -385,7 +351,7 @@ class TelaListaEventos extends StatefulWidget {
 class _TelaListaEventosState extends State<TelaListaEventos> {
   Future<void> _deleteEventFromFirebase(Map<String, String> event) async {
     try {
-      String eventId = event['docId'] ?? '';
+      String eventId = event['id'] ?? '';
 
       if (eventId.isNotEmpty) {
         await FirebaseFirestore.instance
@@ -544,152 +510,6 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
                 );
               },
             ),
-    );
-  }
-}
-
-  @override
-  Widget build(BuildContext context, dynamic events) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Lista de Eventos'),
-        backgroundColor: Colors.teal.shade600,
-      ),
-      body: events.isEmpty
-          ? const Center(
-              child: Text(
-                'Não há eventos cadastrados.',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            )
-          : ListView.builder(
-              itemCount: events.length,
-              itemBuilder: (context, index) {
-                DateTime eventDate = events.keys.elementAt(index);
-                List<Map<String, String>> eventList = events[eventDate]!;
-
-                String formattedDate =
-                    DateFormat('d MMMM yyyy', 'pt_BR').format(eventDate);
-
-                return Card(
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Colors.blueGrey, width: 1),
-                  ),
-                  elevation: 4,
-                  child: ExpansionTile(
-                    title: Text(
-                      formattedDate, 
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    leading: const Icon(
-                      Icons.calendar_today,
-                      color: Colors.teal,
-                    ),
-                    children: eventList.map((event) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          side: const BorderSide(
-                              color: Colors.teal, width: 0.5),
-                        ),
-                        elevation: 2,
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 8, horizontal: 16),
-                          title: Text(
-                            event['event'] ?? 'Evento sem nome',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Hora: ${event['time']}'),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Descrição: ${event['description']}',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              _showDeleteConfirmationDialog(
-                                  context, event['id']!, eventDate, event);
-                            },
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                );
-              },
-            ),
-    );
-  }
-  void _showDeleteConfirmationDialog(BuildContext context, String eventId,
-      DateTime eventDate, Map<String, String> event) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirmar Exclusão'),
-          content: const Text('Você tem certeza que deseja excluir este evento?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); 
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); 
-                deleteEventCallback(eventId, eventDate, event);
-              },
-              child: const Text('Excluir'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-  
-  void deleteEventCallback(String eventId, DateTime eventDate, Map<String, String> event) {
-  }
-class ContadorItem extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const ContadorItem({super.key, required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(label),
-      ],
     );
   }
 }
