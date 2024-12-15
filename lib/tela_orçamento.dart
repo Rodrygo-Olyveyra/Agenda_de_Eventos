@@ -12,12 +12,12 @@ class TelaOrcamento extends StatefulWidget {
 
 class _TelaOrcamentoState extends State<TelaOrcamento> {
   String categoriaSelecionada = 'Traje & Acessórios';
-  String eventoSelecionado = ''; // Variável para armazenar o evento selecionado
+  String eventoSelecionado = '';
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController notaController = TextEditingController();
   final TextEditingController montanteController = TextEditingController();
 
-  // Função para obter os eventos disponíveis
+  
   Future<List<String>> _obterEventos() async {
     final snapshot = await FirebaseFirestore.instance.collection('events').get();
     return snapshot.docs.map((doc) => doc['event'] as String).toList();
@@ -28,16 +28,15 @@ Future<void> _adicionarOrcamento() async {
   final nota = notaController.text;
   final montante = montanteController.text;
 
-  // Verificar se todos os campos obrigatórios estão preenchidos
+  
   if (nome.isNotEmpty && nota.isNotEmpty && montante.isNotEmpty && eventoSelecionado.isNotEmpty) {
     try {
-      // Aqui estamos incluindo o campo eventoId
       await FirebaseFirestore.instance.collection('orcamento').add({
         'nome': nome,
         'nota': nota,
         'categoria': categoriaSelecionada,
         'montante': double.tryParse(montante) ?? 0.0,
-        'eventoId': eventoSelecionado, // Garanta que eventoId está sendo adicionado
+        'eventoId': eventoSelecionado, // 
         'criadoEm': FieldValue.serverTimestamp(),
       });
 
@@ -73,7 +72,6 @@ Future<void> _adicionarOrcamento() async {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Campo Nome
             TextField(
               controller: nomeController,
               decoration: const InputDecoration(
@@ -83,7 +81,6 @@ Future<void> _adicionarOrcamento() async {
             ),
             const SizedBox(height: 16),
 
-            // Campo Nota
             TextField(
               controller: notaController,
               decoration: const InputDecoration(
@@ -93,7 +90,6 @@ Future<void> _adicionarOrcamento() async {
             ),
             const SizedBox(height: 16),
 
-            // Seleção do Evento
             ListTile(
               leading: const Icon(Icons.event),
               title: const Text('Evento'),
@@ -118,7 +114,6 @@ Future<void> _adicionarOrcamento() async {
 
             const SizedBox(height: 16),
 
-            // Campo Categoria
             ListTile(
               leading: const Icon(Icons.category),
               title: const Text('Categoria'),
@@ -140,7 +135,6 @@ Future<void> _adicionarOrcamento() async {
             ),
             const SizedBox(height: 16),
 
-            // Campo Montante
             TextField(
               controller: montanteController,
               decoration: const InputDecoration(
@@ -151,7 +145,6 @@ Future<void> _adicionarOrcamento() async {
             ),
             const SizedBox(height: 16),
 
-            // Botão Adicionar Orçamento
             ElevatedButton(
               onPressed: _adicionarOrcamento,
               style: ElevatedButton.styleFrom(

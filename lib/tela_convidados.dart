@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'telaeventos.dart'; // Importando a tela de seleção de evento
+import 'telaeventos.dart';
 
 class TelaConvidados extends StatefulWidget {
   const TelaConvidados({super.key});
@@ -19,7 +19,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
 
   String tipoConvidado = 'Adulto';
   String genero = 'Outro';
-  String? eventoSelecionado; // Variável para armazenar o evento selecionado
+  String? eventoSelecionado;
 
   Future<void> _adicionarConvidado() async {
     final nome = nomeController.text;
@@ -30,7 +30,6 @@ class _TelaConvidadosState extends State<TelaConvidados> {
     final endereco = enderecoController.text;
 
     if (eventoSelecionado == null) {
-      // Verifica se o evento foi selecionado
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('É obrigatório selecionar um evento!')),
       );
@@ -48,7 +47,7 @@ class _TelaConvidadosState extends State<TelaConvidados> {
           'telefone': telefone,
           'email': email,
           'endereco': endereco,
-          'eventoId': eventoSelecionado, // Armazenando o ID do evento selecionado
+          'eventoId': eventoSelecionado,
           'criadoEm': FieldValue.serverTimestamp(),
         });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -87,7 +86,6 @@ class _TelaConvidadosState extends State<TelaConvidados> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Campos de entrada para nome, sobrenome, etc.
               Row(
                 children: [
                   Expanded(
@@ -148,8 +146,6 @@ class _TelaConvidadosState extends State<TelaConvidados> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Seleção do evento
               ListTile(
                 leading: const Icon(Icons.event),
                 title: const Text('Evento'),
@@ -169,7 +165,6 @@ class _TelaConvidadosState extends State<TelaConvidados> {
                   });
                 },
               ),
-
               ElevatedButton(
                 onPressed: _adicionarConvidado,
                 style: ElevatedButton.styleFrom(

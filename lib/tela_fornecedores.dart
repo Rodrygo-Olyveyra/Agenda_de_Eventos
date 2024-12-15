@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'tela_categoria.dart';
-import 'telaeventos.dart'; // Importar a tela de seleção de evento
+import 'telaeventos.dart';
 
 class TelaFornecedor extends StatefulWidget {
   const TelaFornecedor({super.key});
@@ -12,7 +12,7 @@ class TelaFornecedor extends StatefulWidget {
 
 class _TelaFornecedorState extends State<TelaFornecedor> {
   String categoriaSelecionada = 'Traje & Acessórios';
-  String eventoSelecionado = ''; // Variável para armazenar o evento selecionado
+  String eventoSelecionado = '';
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController notaController = TextEditingController();
   final TextEditingController telefoneController = TextEditingController();
@@ -22,7 +22,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
   final TextEditingController montanteController = TextEditingController();
 
   Future<void> _adicionarFornecedor() async {
-    // Verificando se os campos essenciais estão preenchidos
     if (nomeController.text.isEmpty ||
         montanteController.text.isEmpty ||
         eventoSelecionado.isEmpty) {
@@ -32,7 +31,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
       return;
     }
 
-    // Verificando se o montante é um número válido
     double? montante = double.tryParse(montanteController.text);
     if (montante == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -44,17 +42,16 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
     try {
       final fornecedoresRef = FirebaseFirestore.instance.collection('fornecedores');
 
-      // Adicionando o fornecedor ao Firestore
       await fornecedoresRef.add({
         'nome': nomeController.text,
         'nota': notaController.text,
         'categoria': categoriaSelecionada,
-        'evento': eventoSelecionado, // Adicionando o evento selecionado
+        'evento': eventoSelecionado,
         'telefone': telefoneController.text,
         'email': emailController.text,
         'site': siteController.text,
         'endereco': enderecoController.text,
-        'montante': montante, // Usando o montante como número
+        'montante': montante,
         'criadoEm': Timestamp.now(),
       });
 
@@ -62,7 +59,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
         const SnackBar(content: Text('Fornecedor adicionado com sucesso!')),
       );
 
-      // Limpando os campos
       nomeController.clear();
       notaController.clear();
       telefoneController.clear();
@@ -73,10 +69,9 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
 
       setState(() {
         categoriaSelecionada = 'Traje & Acessórios';
-        eventoSelecionado = ''; // Limpar a seleção de evento
+        eventoSelecionado = '';
       });
 
-      // Fechar a tela após adicionar
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -100,7 +95,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Campo Nome
             TextField(
               controller: nomeController,
               decoration: const InputDecoration(
@@ -110,7 +104,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
             ),
             const SizedBox(height: 16),
 
-            // Campo Nota
             TextField(
               controller: notaController,
               decoration: const InputDecoration(
@@ -120,7 +113,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
             ),
             const SizedBox(height: 16),
 
-            // Seleção de Categoria
             ListTile(
               leading: const Icon(Icons.category),
               title: const Text('Categoria'),
@@ -143,7 +135,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
             ),
             const SizedBox(height: 16),
 
-            // Campo Telefone
             TextField(
               controller: telefoneController,
               decoration: const InputDecoration(
@@ -153,7 +144,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
             ),
             const SizedBox(height: 16),
 
-            // Campo E-mail
             TextField(
               controller: emailController,
               decoration: const InputDecoration(
@@ -163,7 +153,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
             ),
             const SizedBox(height: 16),
 
-            // Campo Site
             TextField(
               controller: siteController,
               decoration: const InputDecoration(
@@ -173,7 +162,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
             ),
             const SizedBox(height: 16),
 
-            // Campo Endereço
             TextField(
               controller: enderecoController,
               decoration: const InputDecoration(
@@ -183,7 +171,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
             ),
             const SizedBox(height: 16),
 
-            // Campo Montante
             TextField(
               controller: montanteController,
               decoration: const InputDecoration(
@@ -194,7 +181,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
             ),
             const SizedBox(height: 16),
 
-            // Seleção de Evento
             ListTile(
               leading: const Icon(Icons.event),
               title: const Text('Evento'),
@@ -219,7 +205,6 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
             ),
             const SizedBox(height: 16),
 
-            // Botão Adicionar Fornecedor
             ElevatedButton(
               onPressed: _adicionarFornecedor,
               style: ElevatedButton.styleFrom(

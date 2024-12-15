@@ -130,7 +130,7 @@ class _TelaEsqueciSenhaState extends State<TelaEsqueciSenha> {
                   : ElevatedButton(
                       onPressed: _resetSenha,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 0, 0, 0), // Cor personalizada
+                        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 40,
                           vertical: 15,
