@@ -319,7 +319,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundColor: primaryColor, // Usando a cor primária
+            backgroundColor: primaryColor, 
             child: Icon(icon, size: 30, color: Colors.white),
           ),
           const SizedBox(height: 8),
@@ -485,8 +485,7 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
                               );
                               if (confirmDelete == true) {
                                 await _deleteEventFromFirebase(event);
-                                // Passando a função onDeleteEvent para atualizar a Tela de Calendário
-                                widget.onDeleteEvent(event);  // Chama a função na Tela de Calendário
+                                widget.onDeleteEvent(event); 
                                 setState(() {
                                   widget.events[eventDate]?.remove(event);
                                   if (widget.events[eventDate]?.isEmpty ?? false) {
