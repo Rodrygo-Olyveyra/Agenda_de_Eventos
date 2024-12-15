@@ -85,7 +85,7 @@ class _TelaLoginState extends State<TelaLogin> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'eventsy4.png',  
+                  'Eventsy.png',  
                  width: 290,
                 height: 290,
                   fit: BoxFit.contain,
