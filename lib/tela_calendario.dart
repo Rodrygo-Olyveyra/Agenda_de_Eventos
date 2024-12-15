@@ -33,6 +33,7 @@ class _TelaCalendarioState extends State<TelaCalendario> {
   }
 
 
+
   void _loadEvents() async {
     if (user == null) {
       print('Usuário não autenticado!');
@@ -312,9 +313,9 @@ drawer: Drawer(
       ListTile(
         leading: const Icon(Icons.event_note, color: Colors.teal),
         title: const Text('Lista de Eventos', style: TextStyle(fontSize: 18)),
-        onTap: () {
+        onTap: () async {
           Navigator.pop(context);
-          Navigator.push(
+         await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => TelaListaEventos(

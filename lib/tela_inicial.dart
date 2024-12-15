@@ -137,7 +137,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
             ListTile(
               leading: const Icon(Icons.event_note, color: Colors.teal),
               title: const Text('Lista de Eventos', style: TextStyle(fontSize: 18)),
-              onTap: () {
+              onTap: ()  {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
