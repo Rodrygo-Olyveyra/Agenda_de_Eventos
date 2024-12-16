@@ -13,7 +13,8 @@ class TelaInicialPersonalizada extends StatefulWidget {
   const TelaInicialPersonalizada({super.key});
 
   @override
-  _TelaInicialPersonalizadaState createState() => _TelaInicialPersonalizadaState();
+  _TelaInicialPersonalizadaState createState() =>
+      _TelaInicialPersonalizadaState();
 }
 
 class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
@@ -258,8 +259,8 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
               child: Center(
                 child: GridView.count(
                   crossAxisCount: 3,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 8,  // Diminui o espaço entre as linhas
+                  crossAxisSpacing: 8,  // Diminui o espaço entre as colunas
                   children: [
                     _buildMenuItem(
                       icon: Icons.people,
@@ -295,6 +296,17 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
                         );
                       },
                     ),
+                    _buildMenuItem(
+                      icon: Icons.business,
+                      label: 'Adicionar Eventos ',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const TelaCalendario()),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -318,15 +330,15 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
-            radius: 30,
+            radius: 25, // Tamanho do ícone foi reduzido
             backgroundColor: primaryColor, 
-            child: Icon(icon, size: 30, color: Colors.white),
+            child: Icon(icon, size: 28, color: Colors.white), // Ícone menor
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),  // Reduzindo o espaço entre ícone e texto
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14),
+            style: const TextStyle(fontSize: 12),  // Tamanho da fonte reduzido
           ),
         ],
       ),
@@ -429,77 +441,30 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
                         ),
                         elevation: 4,
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 16),
                           title: Text(
-                            event['event'] ?? 'Evento sem nome',
+                            event['event']!,
                             style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
+                                fontWeight: FontWeight.bold),
                           ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Hora: ${event['time']}',
-                                  style: const TextStyle(fontSize: 14)),
+                              Text(
+                                'Hora: ${event['time']}',
+                                style: const TextStyle(fontSize: 14),
+                              ),
                               const SizedBox(height: 4),
                               Text(
                                 'Descrição: ${event['description']}',
-                                style: TextStyle(
-                                    color: Colors.grey[700], fontSize: 14),
+                                style: const TextStyle(fontSize: 14),
                               ),
                             ],
                           ),
                           trailing: IconButton(
-                            icon: const Icon(
-                              Icons.delete,
-                              color: Colors.red,
-                            ),
-                            onPressed: () async {
-                              bool? confirmDelete = await showDialog<bool>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('Excluir Evento'),
-                                    content: const Text(
-                                        'Você tem certeza de que deseja excluir este evento?'),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
-                                        child: const Text('Cancelar'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop(true);
-                                        },
-                                        child: const Text('Excluir',
-                                            style:
-                                                TextStyle(color: Colors.red)),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                              if (confirmDelete == true) {
-                                await _deleteEventFromFirebase(event);
-                                widget.onDeleteEvent(event); 
-                                setState(() {
-                                  widget.events[eventDate]?.remove(event);
-                                  if (widget.events[eventDate]?.isEmpty ?? false) {
-                                    widget.events.remove(eventDate);
-                                  }
-                                });
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Evento excluído com sucesso!'),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              }
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              widget.onDeleteEvent(event);
+                              _deleteEventFromFirebase(event);
                             },
                           ),
                         ),
