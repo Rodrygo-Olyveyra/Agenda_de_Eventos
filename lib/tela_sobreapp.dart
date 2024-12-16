@@ -12,7 +12,7 @@ class TelaSobreApp extends StatelessWidget {
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -25,7 +25,7 @@ class TelaSobreApp extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.teal,
+                  color: Color.fromARGB(255, 0, 0, 0),
                 ),
               ),
               const SizedBox(height: 16),
@@ -57,7 +57,7 @@ class TelaSobreApp extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.teal,
+                  color: Color.fromARGB(255, 0, 0, 0),
                 ),
               ),
               const SizedBox(height: 8),
@@ -71,7 +71,7 @@ class TelaSobreApp extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.teal,
+                  color: Color.fromARGB(255, 0, 0, 0),
                 ),
               ),
               const SizedBox(height: 8),
@@ -83,7 +83,7 @@ class TelaSobreApp extends StatelessWidget {
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal,
+                    backgroundColor: const Color.fromARGB(255, 0, 0, 0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

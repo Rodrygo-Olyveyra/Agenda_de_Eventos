@@ -19,7 +19,8 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -112,7 +113,7 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 0, 0, 0),
                         ),
                       ),
                       children: fornecedoresDoEvento.map((fornecedor) {
@@ -130,7 +131,7 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
 
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: Colors.teal,
+                            backgroundColor: const Color.fromARGB(255, 0, 0, 0),
                             child: Text(
                               nome.substring(0, 1).toUpperCase(),
                               style: const TextStyle(color: Colors.white),
@@ -186,7 +187,7 @@ class _TelaListaFornecedoresState extends State<TelaListaFornecedores> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         onPressed: () async {
           final resultado = await Navigator.push(
             context,

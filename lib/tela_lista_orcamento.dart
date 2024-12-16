@@ -19,7 +19,8 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -109,7 +110,7 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 0, 0, 0),
                         ),
                       ),
                       children: orcamentosDoEvento.map((orcamento) {
@@ -125,7 +126,7 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
 
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: Colors.teal,
+                            backgroundColor: const Color.fromARGB(255, 0, 0, 0),
                             child: Text(
                               nome.substring(0, 1).toUpperCase(),
                               style: const TextStyle(color: Colors.white),
@@ -173,7 +174,7 @@ class _TelaListaOrcamentosState extends State<TelaListaOrcamentos> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         onPressed: () async {
           final resultado = await Navigator.push(
             context,

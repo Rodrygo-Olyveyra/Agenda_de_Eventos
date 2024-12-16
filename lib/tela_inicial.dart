@@ -21,8 +21,8 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
   late CollectionReference eventsCollection;
   late User? user;
 
-  final Color primaryColor = const Color(0xFF32CD99);
-  final Color secondaryColor = const Color(0xFF20B2AA);
+  final Color primaryColor = const Color.fromARGB(255, 0, 0, 0);
+  final Color secondaryColor = const Color.fromARGB(255, 0, 0, 0);
   final Color backgroundColor = const Color(0xFFF8F8F8);
   final Color cardColor = Colors.white;
 
@@ -76,7 +76,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
         const SnackBar(
           content: Text('Evento excluído com sucesso!'),
           duration: Duration(seconds: 2),
-          backgroundColor: Colors.green,
+          backgroundColor: Color.fromARGB(255, 0, 0, 0),
         ),
       );
     } catch (e) {
@@ -92,12 +92,14 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
 
   @override
   Widget build(BuildContext context) {
-    var scaffold = Scaffold(
-      appBar: AppBar(
-        title: const Text('Eventsy: Agenda de Eventos'),
-        centerTitle: true,
-        backgroundColor: primaryColor, 
-      ),
+  var scaffold = Scaffold(
+    appBar: AppBar(
+      title: const Text('Eventsy: Agenda de Eventos'),
+      centerTitle: true,
+      backgroundColor: primaryColor, 
+      foregroundColor: Colors.white,  // Define a cor do texto como branco
+    ),
+    // Outros widgets aqui...
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -116,15 +118,15 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
               ),
               accountEmail: Text(
                 FirebaseAuth.instance.currentUser?.email ?? 'Sem e-mail cadastrado',
-                style: const TextStyle(fontSize: 16, color: Colors.white70),
+                style: const TextStyle(fontSize: 16, color: Color.fromARGB(255, 255, 255, 255)),
               ),
               currentAccountPicture: const CircleAvatar(
                 backgroundColor: Colors.white,
-                child: Icon(Icons.event, size: 40, color: Color(0xFF32CD99)),
+                child: Icon(Icons.event, size: 40, color: Color.fromARGB(255, 0, 0, 0)),
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.home, color: Colors.teal),
+              leading: const Icon(Icons.home, color: Color.fromARGB(255, 0, 0, 0)),
               title: const Text('Início', style: TextStyle(fontSize: 18)),
               onTap: () {
                 Navigator.pop(context);
@@ -135,7 +137,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.event_note, color: Colors.teal),
+              leading: const Icon(Icons.event_note, color: Color.fromARGB(255, 0, 0, 0)),
               title: const Text('Lista de Eventos', style: TextStyle(fontSize: 18)),
               onTap: ()  {
                 Navigator.pop(context);
@@ -158,7 +160,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.calendar_today, color: Colors.teal),
+              leading: const Icon(Icons.calendar_today, color: Color.fromARGB(255, 0, 0, 0)),
               title: const Text('Calendário', style: TextStyle(fontSize: 18)),
               onTap: () {
                 Navigator.pop(context);
@@ -191,7 +193,7 @@ class _TelaInicialPersonalizadaState extends State<TelaInicialPersonalizada> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.info_outline, color: Colors.teal),
+              leading: const Icon(Icons.info_outline, color: Color.fromARGB(255, 0, 0, 0)),
               title: const Text('Sobre o App', style: TextStyle(fontSize: 18)),
               onTap: () {
                 Navigator.pop(context);
@@ -423,12 +425,12 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
-                        color: Colors.teal,
+                        color: Color.fromARGB(255, 0, 0, 0),
                       ),
                     ),
                     leading: const Icon(
                       Icons.calendar_today,
-                      color: Colors.teal,
+                      color: Color.fromARGB(255, 0, 0, 0),
                     ),
                     childrenPadding: const EdgeInsets.all(8),
                     children: eventList.map((event) {
@@ -437,7 +439,7 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
                             vertical: 6, horizontal: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          side: const BorderSide(color: Colors.teal, width: 0.5),
+                          side: const BorderSide(color: Color.fromARGB(255, 0, 0, 0), width: 0.5),
                         ),
                         elevation: 4,
                         child: ListTile(
@@ -508,7 +510,7 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Evento excluído com sucesso!'),
-                                    backgroundColor: Colors.green,
+                                    backgroundColor: Color.fromARGB(255, 0, 0, 0),
                                   ),
                                 );
                               }

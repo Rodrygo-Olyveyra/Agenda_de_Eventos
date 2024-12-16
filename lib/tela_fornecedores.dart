@@ -208,7 +208,7 @@ class _TelaFornecedorState extends State<TelaFornecedor> {
             ElevatedButton(
               onPressed: _adicionarFornecedor,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: Colors.orange,
                 minimumSize: const Size(double.infinity, 50),
               ),
               child: const Text('ADICIONAR'),

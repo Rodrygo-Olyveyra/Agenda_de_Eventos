@@ -17,7 +17,8 @@ class _TelaListaConvidadosState extends State<TelaListaConvidados> {
         title: const Text('Convidados',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         centerTitle: true,
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -106,7 +107,7 @@ class _TelaListaConvidadosState extends State<TelaListaConvidados> {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 0, 0, 0),
                         ),
                       ),
                       children: convidadosDoEvento.map((convidado) {
@@ -117,7 +118,7 @@ class _TelaListaConvidadosState extends State<TelaListaConvidados> {
 
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: Colors.teal,
+                            backgroundColor: const Color.fromARGB(255, 0, 0, 0),
                             child: Text(
                               nome.substring(0, 1).toUpperCase(),
                               style: const TextStyle(color: Colors.white),
@@ -128,7 +129,7 @@ class _TelaListaConvidadosState extends State<TelaListaConvidados> {
                                   fontSize: 16, fontWeight: FontWeight.w600)),
                           subtitle: Text('$tipoConvidado - $genero'),
                           trailing: IconButton(
-                            icon: const Icon(Icons.info_outline, color: Colors.teal),
+                            icon: const Icon(Icons.info_outline, color: Color.fromARGB(255, 0, 0, 0)),
                             onPressed: () {
                               showDialog(
                                 context: context,
@@ -166,7 +167,7 @@ class _TelaListaConvidadosState extends State<TelaListaConvidados> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         onPressed: () async {
           final resultado = await Navigator.push(
             context,

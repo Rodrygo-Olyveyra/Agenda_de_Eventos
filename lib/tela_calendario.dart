@@ -272,7 +272,8 @@ Future<void> _deleteEvent(Map<String, String> event) async {
       appBar: AppBar(
         title: const Text('Calendário Eventsy'),
         centerTitle: true,
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
       ),
 drawer: Drawer(
   child: ListView(
@@ -281,7 +282,7 @@ drawer: Drawer(
       UserAccountsDrawerHeader(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF32CD99), Color(0xFF20B2AA)],
+            colors: [Color.fromARGB(255, 0, 0, 0), Color.fromARGB(255, 0, 0, 0)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -296,11 +297,11 @@ drawer: Drawer(
         ),
         currentAccountPicture: const CircleAvatar(
           backgroundColor: Colors.white,
-          child: Icon(Icons.event, size: 40, color: Color(0xFF32CD99)),
+          child: Icon(Icons.event, size: 40, color: Color.fromARGB(255, 0, 0, 0)),
         ),
       ),
       ListTile(
-        leading: const Icon(Icons.home, color: Colors.teal),
+        leading: const Icon(Icons.home, color: Color.fromARGB(255, 0, 0, 0)),
         title: const Text('Início', style: TextStyle(fontSize: 18)),
         onTap: () {
           Navigator.pop(context);
@@ -311,7 +312,7 @@ drawer: Drawer(
         },
       ),
       ListTile(
-        leading: const Icon(Icons.event_note, color: Colors.teal),
+        leading: const Icon(Icons.event_note, color: Color.fromARGB(255, 0, 0, 0)),
         title: const Text('Lista de Eventos', style: TextStyle(fontSize: 18)),
         onTap: () async {
           Navigator.pop(context);
@@ -334,7 +335,7 @@ drawer: Drawer(
         },
       ),
       ListTile(
-        leading: const Icon(Icons.calendar_today, color: Colors.teal),
+        leading: const Icon(Icons.calendar_today, color: Color.fromARGB(255, 0, 0, 0)),
         title: const Text('Calendário', style: TextStyle(fontSize: 18)),
         onTap: () {
           Navigator.pop(context);
@@ -367,7 +368,7 @@ drawer: Drawer(
         ),
       ),
   ListTile(
-  leading: const Icon(Icons.info_outline, color: Colors.teal),
+  leading: const Icon(Icons.info_outline, color: Color.fromARGB(157, 25, 0, 255)),
   title: const Text('Sobre o App', style: TextStyle(fontSize: 18)),
   onTap: () {
     Navigator.pop(context);
@@ -404,7 +405,7 @@ drawer: Drawer(
               _showAddEventDialog(context);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueGrey,
+              backgroundColor: const Color.fromARGB(255, 0, 161, 241),
             ),
             child: const Text('Adicionar Evento'),
           ),
@@ -492,7 +493,8 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
       appBar: AppBar(
         title: const Text('Sua lista Eventsy'),
         centerTitle: true,
-        backgroundColor: Colors.teal.shade600,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
         elevation: 4,
       ),
       body: widget.events.isEmpty
@@ -528,12 +530,12 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
-                        color: Colors.teal,
+                        color: Color.fromARGB(255, 0, 0, 0),
                       ),
                     ),
                     leading: const Icon(
                       Icons.calendar_today,
-                      color: Colors.teal,
+                      color: Color.fromARGB(255, 0, 0, 0),
                     ),
                     childrenPadding: const EdgeInsets.all(8),
                     children: eventList.map((event) {
@@ -543,7 +545,7 @@ class _TelaListaEventosState extends State<TelaListaEventos> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side:
-                              const BorderSide(color: Colors.teal, width: 0.5),
+                              const BorderSide(color: Color.fromARGB(255, 0, 0, 0), width: 0.5),
                         ),
                         elevation: 4,
                         child: ListTile(

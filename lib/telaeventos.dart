@@ -39,7 +39,8 @@ class _TelaSelecaoEventoState extends State<TelaSelecaoEvento> {
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
       ),
       body: FutureBuilder<List<DocumentSnapshot>>(
         future: _buscarEventos(),
@@ -93,11 +94,11 @@ class _TelaSelecaoEventoState extends State<TelaSelecaoEvento> {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.teal,
+                      color: Color.fromARGB(255, 0, 0, 0),
                     ),
                   ),
                   subtitle: Text('Data: $dataEvento'),
-                  trailing: const Icon(Icons.event, color: Colors.teal),
+                  trailing: const Icon(Icons.event, color: Color.fromARGB(255, 0, 0, 0)),
                   onTap: () {
                     setState(() {
                       eventoSelecionado = evento.id;
