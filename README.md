@@ -23,11 +23,17 @@ Adicione o Firebase ao seu app Flutter.
 A estrutura segue o padrão de projetos Flutter, com os principais arquivos na pasta lib/:
 
 main.dart: Entrada do aplicativo e inicialização do Firebase.
+
 firebase_options.dart: Configurações do Firebase.
+
 Telas: Contém as funcionalidades principais:
+
 Cadastro e login: tela_cadastro.dart, tela_de_login.dart, tela_esqueceu_senha.dart.
+
 Gerenciamento: tela_eventos.dart, tela_orçamento.dart, tela_convidados.dart, tela_fornecedores.dart.
+
 Exibição: tela_calendario.dart, tela_lista_convidados.dart, tela_lista_fornecedores.dart, tela_lista_orcamento.dart.
+
 Outras: tela_categoria.dart, tela_sobreapp.dart.
 
 ## Resumo
